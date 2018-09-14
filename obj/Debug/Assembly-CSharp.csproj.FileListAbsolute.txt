@@ -15,7 +15,6 @@
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEditor.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEditor.StandardEvents.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.AccessibilityModule.dll
-/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Advertisements.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.AIModule.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Analytics.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.AnimationModule.dll
@@ -49,7 +48,6 @@
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Physics2DModule.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.PhysicsModule.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.ProfilerModule.dll
-/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Purchasing.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.ScreenCaptureModule.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.SharedInternalsModule.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.SpatialTracking.dll
@@ -102,7 +100,6 @@
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/Unity.CecilTools.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/Unity.Cecil.Pdb.dll
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/Unity.Cecil.Mdb.dll
-/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/Assembly-CSharp-firstpass.pdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.dll.mdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.xml
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEditor.dll.mdb
@@ -242,9 +239,7 @@
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.HoloLens.xml
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.SpatialTracking.dll.mdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.SpatialTracking.xml
-/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Advertisements.dll.mdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Analytics.dll.mdb
-/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.Purchasing.dll.mdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.StandardEvents.dll.mdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.ParticlesLegacyModule.dll.mdb
 /Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Temp/bin/Debug/UnityEngine.ParticlesLegacyModule.xml

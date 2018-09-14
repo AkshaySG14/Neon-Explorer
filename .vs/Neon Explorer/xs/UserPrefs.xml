@@ -1,9 +1,11 @@
 ﻿<Properties StartupConfiguration="{FEA202E9-4E9E-FEAE-C079-FCA5C55512FE}|">
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PlayerScripts/PlatformController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EnemyScripts/EnemyConstants.cs">
     <Files>
-      <File FileName="Assets/Scripts/PlayerScripts/Camera2DFollow.cs" Line="33" Column="53" />
-      <File FileName="Assets/Scripts/PlayerScripts/PlatformController.cs" Line="132" Column="10" />
+      <File FileName="Assets/Scripts/EnemyScripts/EnemyConstants.cs" Line="15" Column="51" />
+      <File FileName="Assets/Scripts/ProjectileScripts/PlayerBullet.cs" Line="7" Column="38" />
+      <File FileName="Assets/Scripts/EffectScripts/PlayerBulletExplosion.cs" Line="4" Column="35" />
+      <File FileName="Assets/Scripts/EffectScripts/EnemyDeath.cs" Line="13" Column="18" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

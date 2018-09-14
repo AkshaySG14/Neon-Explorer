@@ -1,0 +1,17 @@
+﻿<Properties StartupConfiguration="{FEA202E9-4E9E-FEAE-C079-FCA5C55512FE}|">
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EnemyScripts/EnemyScript.cs">
+    <Files>
+      <File FileName="Assets/Scripts/PlayerScripts/PlayerController.cs" Line="104" Column="10" />
+      <File FileName="Assets/Scripts/EnemyScripts/EnemyScript.cs" Line="64" Column="1" />
+      <File FileName="Assets/Scripts/EnemyScripts/Crab.cs" Line="11" Column="10" />
+      <File FileName="Assets/Scripts/PlayerScripts/PlayerConstants.cs" Line="13" Column="46" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

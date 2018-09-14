@@ -61,17 +61,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\_Complete-Game\Scripts\BoardManager.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\Enemy.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\GameManager.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\Loader.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\MovingObject.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\Player.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\SoundManager.cs" />
-    <Compile Include="Assets\_Complete-Game\Scripts\Wall.cs" />
+    <Compile Include="Assets\Scripts\EffectScripts\EnemyDeath.cs" />
+    <Compile Include="Assets\Scripts\EffectScripts\PlayerBulletExplosion.cs" />
+    <Compile Include="Assets\Scripts\EnemyScripts\Crab.cs" />
+    <Compile Include="Assets\Scripts\EnemyScripts\EnemyConstants.cs" />
+    <Compile Include="Assets\Scripts\EnemyScripts\EnemyScript.cs" />
     <Compile Include="Assets\Scripts\PlayerScripts\Camera2DFollow.cs" />
-    <Compile Include="Assets\Scripts\PlayerScripts\PlatformController.cs" />
+    <Compile Include="Assets\Scripts\PlayerScripts\PlayerCollisionHandler.cs" />
+    <Compile Include="Assets\Scripts\PlayerScripts\PlayerConstants.cs" />
+    <Compile Include="Assets\Scripts\PlayerScripts\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\ProjectileScripts\PlayerBullet.cs" />
     <None Include="Assets\Pixel Bird\Read Me.txt" />
+    <None Include="Assets\Scripts\Shaders\PlayerDamage.shader" />
     <None Include="Assets\Fonts\OFL.txt" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
