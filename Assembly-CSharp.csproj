@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\PlayerScripts\PlayerConstants.cs" />
     <Compile Include="Assets\Scripts\PlayerScripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\PlayerBullet.cs" />
+    <Compile Include="Assets\Scripts\ProjectileScripts\PlayerMirror.cs" />
     <None Include="Assets\Pixel Bird\Read Me.txt" />
     <None Include="Assets\Scripts\Shaders\PlayerDamage.shader" />
     <None Include="Assets\Fonts\OFL.txt" />

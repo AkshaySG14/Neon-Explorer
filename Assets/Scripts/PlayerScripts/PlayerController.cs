@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public Transform projectile;
 
+    public Camera camera;
     public GameObject bulletPrefab;
 
     private int health = 5;
@@ -53,26 +54,26 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        if (Input.GetButtonDown(Constants.CROUCH) && grounded &&
+        else if (Input.GetButtonDown(Constants.CROUCH) && grounded &&
             Mathf.Approximately(rb2d.velocity.x, 0))
         {
             crouched = true;
             AnimTrigger(Constants.CROUCH);
         }
-        if (Input.GetButtonUp(Constants.CROUCH) && grounded)
+        else if (Input.GetButtonUp(Constants.CROUCH) && grounded)
         {
             crouched = false;
             AnimTrigger(Constants.IDLE);
         }
-        if (Input.GetButtonDown(Constants.SHOOT))
+        else if (Input.GetButtonDown(Constants.SHOOT))
         {
-            Shoot();
+            Fire();
         }
-        if (Input.GetButtonDown(Constants.JUMP) && grounded && !crouched)
+        else if (Input.GetButtonDown(Constants.JUMP) && grounded && !crouched)
         {
             StartCoroutine(Jump());
         }
-        if (Input.GetButtonUp(Constants.JUMP) && rb2d.velocity.y > 0)
+        else if (Input.GetButtonUp(Constants.JUMP) && rb2d.velocity.y > 0)
         {
             rb2d.velocity = new Vector2(rb2d.velocity.x, 0.5f);
         }
@@ -163,6 +164,28 @@ public class PlayerController : MonoBehaviour
             new Vector2(Mathf.Sign(transform.localScale.x), 0) *
             Constants.SHOOT_FORCE
         );
+    }
+
+    private void Fire()
+    {
+        if (grounded)
+        {
+            AnimTrigger(Constants.SHOOT);
+            StopCoroutine("ShootEnd");
+            StartCoroutine("ShootEnd");
+        }
+
+        GameObject mirror;
+        mirror = Instantiate(bulletPrefab, projectile.position,
+                             projectile.rotation);
+
+        Vector3 mousePos = Input.mousePosition;
+        mousePos = camera.ScreenToWorldPoint(mousePos);
+        float mousePosX = mousePos.x - transform.position.x;
+        float mousePosY = mousePos.y - transform.position.y;
+
+        mirror.GetComponent<Rigidbody2D>().AddForce(
+            new Vector2(mousePosX, mousePosY) * Constants.SHOOT_FORCE);
     }
 
     private void TakeDamage(int damage)

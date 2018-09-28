@@ -11,7 +11,7 @@
         public const float GROUND_RADIUS = 0.5f;
         public const float JUMP_DECAY = 0.6f;
 
-        public const float SHOOT_FORCE = 400f;
+        public const float SHOOT_FORCE = 200f;
 
         public const string IDLE = "Idle";
         public const string GROUNDED = "Grounded";
