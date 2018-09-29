@@ -148,23 +148,23 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Shoot()
-    {
-        if (grounded)
-        {
-            AnimTrigger(Constants.SHOOT);
-            StopCoroutine("ShootEnd");
-            StartCoroutine("ShootEnd");
-        }
+    //private void Shoot()
+    //{
+    //    if (grounded)
+    //    {
+    //        AnimTrigger(Constants.SHOOT);
+    //        StopCoroutine("ShootEnd");
+    //        StartCoroutine("ShootEnd");
+    //    }
 
-        GameObject bullet;
-        bullet = Instantiate(bulletPrefab, projectile.position,
-                             projectile.rotation);
-        bullet.GetComponent<Rigidbody2D>().AddForce(
-            new Vector2(Mathf.Sign(transform.localScale.x), 0) *
-            Constants.SHOOT_FORCE
-        );
-    }
+    //    GameObject bullet;
+    //    bullet = Instantiate(bulletPrefab, projectile.position,
+    //                         projectile.rotation);
+    //    bullet.GetComponent<Rigidbody2D>().AddForce(
+    //        new Vector2(Mathf.Sign(transform.localScale.x), 0) *
+    //        Constants.SHOOT_FORCE
+    //    );
+    //}
 
     private void Fire()
     {
@@ -181,14 +181,8 @@ public class PlayerController : MonoBehaviour
 
         Vector3 mousePos = Input.mousePosition;
         mousePos = camera.ScreenToWorldPoint(mousePos);
-        float mousePosX = mousePos.x - transform.position.x;
-        float mousePosY = mousePos.y - transform.position.y;
 
-        Debug.Log(new Vector2(mousePosX, mousePosY) * Constants.SHOOT_FORCE);
-
-        mirror.GetComponent<Rigidbody2D>().AddForce(
-            new Vector2(mousePosX, mousePosY) * Constants.SHOOT_FORCE
-        );
+        mirror.SendMessage("SetEndVector", new Vector2(mousePos.x, mousePos.y));
     }
 
     private void TakeDamage(int damage)

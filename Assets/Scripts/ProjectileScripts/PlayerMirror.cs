@@ -8,15 +8,16 @@ public class PlayerBullet : MonoBehaviour
 
     private Rigidbody2D rb2d;
 
-    private static string PLAYER_TAG = "Player";
     private static string ENEMY_TAG = "Enemy";
+
+    private const float SHOOT_FORCE = 5f;
+
+    private Vector2 endVector;
 
     // Use this for initialization
     void Start()
     {
-        rb2d = GetComponent<Rigidbody2D>();
-        StartCoroutine("SlowDown");
-        StartCoroutine("SelfDestruct");
+        this.rb2d = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -25,19 +26,18 @@ public class PlayerBullet : MonoBehaviour
 
     }
 
+    public void SetEndVector(Vector2 endVector)
+    {
+        this.rb2d = GetComponent<Rigidbody2D>();
+        this.endVector = endVector;
+        rb2d.velocity = (endVector - new Vector2(transform.position.x, transform.position.y)) * SHOOT_FORCE;
+        StartCoroutine("SlowDown");
+        StartCoroutine("SelfDestruct");
+    }
+
     void OnCollisionEnter2D(Collision2D collisionObject)
     {
         var objectTag = collisionObject.gameObject.tag;
-
-        if (objectTag.Equals(PLAYER_TAG))
-        {
-            Debug.Log("DKLFJLKSDJFK");
-            Physics2D.IgnoreCollision(
-                collisionObject.gameObject.GetComponent<BoxCollider2D>(),
-                gameObject.GetComponent<BoxCollider2D>()
-            );
-            return;
-        }
 
         if (objectTag.Equals(ENEMY_TAG))
         {
@@ -53,19 +53,17 @@ public class PlayerBullet : MonoBehaviour
     private IEnumerator SlowDown()
     {
         yield return null;
-        Vector2 sVelocity = rb2d.velocity;
-        sVelocity.Scale(new Vector2(-5f, -5f));
 
         int counter = 0;
         while (counter < 10)
         {
-            rb2d.AddForce(sVelocity);
+            rb2d.velocity = new Vector2(rb2d.velocity.x / 1.1f, rb2d.velocity.y / 1.1f);
             counter++;
-            yield return new WaitForSeconds(Time.deltaTime / 10);
+            yield return new WaitForSeconds(Time.deltaTime);
         }
 
         yield return null;
-        rb2d.velocity.Set(0, 0);
+        rb2d.velocity = new Vector2(0, 0);
     }
 
 
