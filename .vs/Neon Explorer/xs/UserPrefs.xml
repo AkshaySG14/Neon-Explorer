@@ -2,7 +2,7 @@
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/ProjectileScripts/PlayerMirror.cs">
     <Files>
-      <File FileName="Assets/Scripts/ProjectileScripts/PlayerMirror.cs" Line="11" Column="1" />
+      <File FileName="Assets/Scripts/ProjectileScripts/PlayerMirror.cs" Line="48" Column="15" />
       <File FileName="Assets/Scripts/PlayerScripts/PlayerController.cs" Line="17" Column="26" />
       <File FileName="Assets/Scripts/PlayerScripts/PlayerConstants.cs" Line="13" Column="9" />
     </Files>
