@@ -8,19 +8,13 @@ public class PlayerCollisionHandler : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collisionObject)
     {
         string objectTag = collisionObject.gameObject.tag;
-        //var objCollider = collisionObject.gameObject.GetComponent<Collider2D>();
         if (objectTag.Equals(ENEMY_TAG))
         {
-            //Physics2D.IgnoreCollision(
-            //    objCollider,
-            //    gameObject.GetComponent<Collider2D>()
-            //);
             gameObject.SendMessage(
                 "TakeDamage",
                 1,
                 SendMessageOptions.DontRequireReceiver
             );
-            //StartCoroutine("ReEnableCollision", objCollider);
             return;
         }
     }

@@ -184,8 +184,11 @@ public class PlayerController : MonoBehaviour
         float mousePosX = mousePos.x - transform.position.x;
         float mousePosY = mousePos.y - transform.position.y;
 
+        Debug.Log(new Vector2(mousePosX, mousePosY) * Constants.SHOOT_FORCE);
+
         mirror.GetComponent<Rigidbody2D>().AddForce(
-            new Vector2(mousePosX, mousePosY) * Constants.SHOOT_FORCE);
+            new Vector2(mousePosX, mousePosY) * Constants.SHOOT_FORCE
+        );
     }
 
     private void TakeDamage(int damage)

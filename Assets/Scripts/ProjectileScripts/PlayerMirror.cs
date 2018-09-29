@@ -31,6 +31,7 @@ public class PlayerBullet : MonoBehaviour
 
         if (objectTag.Equals(PLAYER_TAG))
         {
+            Debug.Log("DKLFJLKSDJFK");
             Physics2D.IgnoreCollision(
                 collisionObject.gameObject.GetComponent<BoxCollider2D>(),
                 gameObject.GetComponent<BoxCollider2D>()
