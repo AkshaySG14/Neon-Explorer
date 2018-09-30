@@ -9,7 +9,8 @@ public class PlayerController : MonoBehaviour
     public Transform projectile;
 
     public Camera camera;
-    public GameObject bulletPrefab;
+    public GameObject fastMirror;
+    public GameObject slowMirror;
 
     private int health = 5;
     private float jumpTime = 0.1f;
@@ -65,9 +66,13 @@ public class PlayerController : MonoBehaviour
             crouched = false;
             AnimTrigger(Constants.IDLE);
         }
-        else if (Input.GetButtonDown(Constants.SHOOT))
+        else if (Input.GetButtonDown(Constants.SHOOT_FAST_MIRROR))
         {
-            Fire();
+            FireMirror(fastMirror);
+        }
+        else if (Input.GetButtonDown(Constants.SHOOT_SLOW_MIRROR))
+        {
+            FireMirror(slowMirror);
         }
         else if (Input.GetButtonDown(Constants.JUMP) && grounded && !crouched)
         {
@@ -105,11 +110,16 @@ public class PlayerController : MonoBehaviour
     {
         if ((h > 0 && !facingRight) || (h < 0 && facingRight))
         {
-            facingRight = !facingRight;
-            Vector3 theScale = transform.localScale;
-            theScale.x *= -1;
-            transform.localScale = theScale;
+            Flip();
         }
+    }
+
+    private void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
     }
 
     private void Move(float h)
@@ -148,25 +158,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //private void Shoot()
-    //{
-    //    if (grounded)
-    //    {
-    //        AnimTrigger(Constants.SHOOT);
-    //        StopCoroutine("ShootEnd");
-    //        StartCoroutine("ShootEnd");
-    //    }
+    private void FireMirror(GameObject gameObject)
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos = camera.ScreenToWorldPoint(mousePos);
 
-    //    GameObject bullet;
-    //    bullet = Instantiate(bulletPrefab, projectile.position,
-    //                         projectile.rotation);
-    //    bullet.GetComponent<Rigidbody2D>().AddForce(
-    //        new Vector2(Mathf.Sign(transform.localScale.x), 0) *
-    //        Constants.SHOOT_FORCE
-    //    );
-    //}
+        if (mousePos.x < transform.position.x && facingRight)
+        {
+            Flip();
+        }
+        else if (mousePos.x > transform.position.x && !facingRight)
+        {
+            Flip();
+        }
 
-    private void Fire()
+        if (grounded)
+        {
+            AnimTrigger(Constants.SHOOT);
+            StopCoroutine("ShootEnd");
+            StartCoroutine("ShootEnd");
+        }
+
+        GameObject mirrorProj;
+        mirrorProj = Instantiate(gameObject, projectile.position, projectile.rotation);
+
+        mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
+    }
+
+    private void FireSlowMirror()
     {
         if (grounded)
         {
@@ -175,15 +194,22 @@ public class PlayerController : MonoBehaviour
             StartCoroutine("ShootEnd");
         }
 
-        GameObject mirror;
-        mirror = Instantiate(bulletPrefab, projectile.position,
-                             projectile.rotation);
+        GameObject mirrorProj;
+        mirrorProj = Instantiate(slowMirror, projectile.position, projectile.rotation);
 
         Vector3 mousePos = Input.mousePosition;
         mousePos = camera.ScreenToWorldPoint(mousePos);
-
-        mirror.SendMessage("SetEndVector", new Vector2(mousePos.x, mousePos.y));
+        if (mousePos.x < transform.position.x && facingRight)
+        {
+            Flip();
+        }
+        else if (mousePos.x > transform.position.x && !facingRight)
+        {
+            Flip();
+        }
+        mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
     }
+
 
     private void TakeDamage(int damage)
     {

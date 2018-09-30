@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMirror : MonoBehaviour
+public class PlayerBullet : MonoBehaviour
 {
     public GameObject explosionPrefab;
 

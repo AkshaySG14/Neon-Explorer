@@ -10,7 +10,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace>
     </RootNamespace>
-    <ProjectGuid>{FEA202E9-4E9E-FEAE-C079-FCA5C55512FE}</ProjectGuid>
+    <ProjectGuid>{D41D66E7-3A44-A7B9-043D-D873DB10DBF7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -70,22 +70,23 @@
     <Compile Include="Assets\Scripts\PlayerScripts\PlayerCollisionHandler.cs" />
     <Compile Include="Assets\Scripts\PlayerScripts\PlayerConstants.cs" />
     <Compile Include="Assets\Scripts\PlayerScripts\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\ProjectileScripts\FastPlayerMirror.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\PlayerBullet.cs" />
-    <Compile Include="Assets\Scripts\ProjectileScripts\PlayerMirror.cs" />
+    <Compile Include="Assets\Scripts\ProjectileScripts\SlowPlayerMirror.cs" />
     <None Include="Assets\Pixel Bird\Read Me.txt" />
     <None Include="Assets\Scripts\Shaders\PlayerDamage.shader" />
     <None Include="Assets\Fonts\OFL.txt" />
     <Reference Include="UnityEditor.StandardEvents">
-      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
+      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon-Explorer/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon-Explorer/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon-Explorer/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon-Explorer/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>/Applications/Unity/Hub/Editor/2018.2.0b11/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -265,7 +266,7 @@
       <HintPath>/Applications/Unity/Hub/Editor/2018.2.0b11/Unity.app/Contents/Managed/Unity.Locator.dll</HintPath>
     </Reference>
     <Reference Include="Facebook.Unity.Settings">
-      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon Explorer/Library/FacebookSDK/Facebook.Unity.Settings.dll</HintPath>
+      <HintPath>/Users/akshaysubramaniam/Documents/Workspace/Neon-Explorer/Library/FacebookSDK/Facebook.Unity.Settings.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>/Applications/Unity/Hub/Editor/2018.2.0b11/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

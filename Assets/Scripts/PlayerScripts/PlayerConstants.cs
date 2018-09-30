@@ -20,6 +20,10 @@
         public const string SHOOTSTOP = "ShootStop";
         public const string HURT = "Hurt";
 
+        public const string SHOOT_FAST_MIRROR = "Shoot";
+        public const string SHOOT_SLOW_MIRROR = "Shoot2";
+        public const string SHOOT_BULLET = "Shoot";
+
         public const string HORIZONTAL = "Horizontal";
         public const string SPEED = "Speed";
 
