@@ -19,12 +19,14 @@
         public const string SHOOT = "Shoot";
         public const string SHOOTSTOP = "ShootStop";
         public const string HURT = "Hurt";
+        public const string DODGE = "Dodge";
 
         public const string SHOOT_FAST_MIRROR = "Shoot";
         public const string SHOOT_SLOW_MIRROR = "Shoot2";
         public const string SHOOT_BULLET = "Shoot";
 
         public const string HORIZONTAL = "Horizontal";
+        public const string VERTICAL = "Vertical";
         public const string SPEED = "Speed";
 
         public const string BLOCKING_LAYER = "Blocking";
