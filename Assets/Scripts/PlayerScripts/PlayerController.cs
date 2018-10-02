@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     private bool crouched = false;
     private bool dodged = false;
 
+    private int groundTimer = 0;
+
     private Animator animator;
     private Rigidbody2D rb2d;
 
@@ -31,32 +33,39 @@ public class PlayerController : MonoBehaviour
         rb2d = GetComponent<Rigidbody2D>();
     }
 
+    private void Interrupt()
+    {
+
+    }
+
     private void Update()
     {
-        // Checks to see if there is something separating the player and the 
-        // ground check transform.
-        Debug.DrawRay(groundCheck.position, Vector2.down, Color.green);
-        bool newGroundedState = Physics2D.Raycast(
-            groundCheck.position,
-            Vector2.down,
-            0.25f,
-            1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
-        );
-        if (!grounded && newGroundedState)
+        if (groundTimer == 0)
         {
-            AnimTrigger(Constants.GROUNDED);
-        }
-        grounded = newGroundedState;
+            // Checks to see if there is something separating the player and the 
+            // ground check transform.
+            Debug.DrawRay(groundCheck.position, Vector2.down, Color.green);
+            bool newGroundedState = Physics2D.Raycast(
+                groundCheck.position,
+                Vector2.down,
+                0.25f,
+                1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
+            );
+            if (!grounded) {
+                if (newGroundedState) 
+                {
+                    AnimTrigger(Constants.GROUNDED);
+                    groundTimer = Constants.GROUND_CHECK_TIMER;
+                    Land(rb2d.velocity.x);
+                }
+            }
+            grounded = newGroundedState;
+        }else { groundTimer--; }
         CheckInput();
     }
 
     private void CheckInput()
     {
-        if (grounded)
-        {
-            dodged = false;
-            rb2d.gravityScale = 1;
-        }
         if (stunned)
         {
             return;
@@ -93,26 +102,26 @@ public class PlayerController : MonoBehaviour
             //Dodge Up
             if (Input.GetAxis(Constants.VERTICAL) > 0)
             {
-                rb2d.velocity = new Vector2(rb2d.velocity.x * 0.5f, 6);
+                ChangeVel(rb2d.velocity.x * 0.5f, 6);
             }
             //Dodge Down
             else if (Input.GetAxis(Constants.VERTICAL) < 0)
             {
-                rb2d.velocity = new Vector2(0, -4);
+                ChangeVel(0, -4);
             }
             else if (Input.GetAxis(Constants.HORIZONTAL) != 0)
             {
                 //Minimum Side Dodge Velocity
-                if(Mathf.Abs(rb2d.velocity.x) < 0.9f) { rb2d.velocity = new Vector2(0.9f*Mathf.Sign(rb2d.velocity.x),rb2d.velocity.y); }
+                if(Mathf.Abs(rb2d.velocity.x) < 0.9f) { ChangeVel(0.9f*Mathf.Sign(rb2d.velocity.x),rb2d.velocity.y); }
                 //Dodge Right
                 if (Input.GetAxis(Constants.HORIZONTAL) > 0)
                 {
-                    rb2d.velocity = new Vector2(Mathf.Abs(rb2d.velocity.x * 1.5f), 3);
+                    ChangeVel(Mathf.Abs(rb2d.velocity.x * 1.5f), 3);
                 }
                 //Dodge Left
                 else
                 {
-                    rb2d.velocity = new Vector2(-Mathf.Abs(rb2d.velocity.x * 1.5f), 3);
+                    ChangeVel(-Mathf.Abs(rb2d.velocity.x * 1.5f), 3);
                 }
             }
             //Neutral Dodge
@@ -138,7 +147,7 @@ public class PlayerController : MonoBehaviour
         // Plays idle and halts player if no horizontal input and not crouched.
         if (Mathf.Approximately(h, 0) && !crouched && grounded)
         {
-            rb2d.velocity = new Vector2(0, rb2d.velocity.y);
+            ChangeVel(0, rb2d.velocity.y);
             AnimTrigger(Constants.IDLE);
         }
         else
@@ -146,6 +155,11 @@ public class PlayerController : MonoBehaviour
             CheckFlip(h);
             Move(h);
         }
+    }
+
+    private void ChangeVel(float x, float y)
+    {
+        rb2d.velocity = new Vector2(x, y);
     }
 
     private void CheckFlip(float h)
@@ -195,7 +209,7 @@ public class PlayerController : MonoBehaviour
         // Checks for exceeding max speed.
         if (Mathf.Abs(rb2d.velocity.x) > Constants.MAX_SPEED && !dodged)
         {
-            rb2d.velocity = new Vector2(Mathf.Sign(rb2d.velocity.x) *
+            ChangeVel(Mathf.Sign(rb2d.velocity.x) *
                                         Constants.MAX_SPEED, rb2d.velocity.y);
         }
     }
@@ -265,7 +279,7 @@ public class PlayerController : MonoBehaviour
 
         health -= damage;
 
-        rb2d.velocity = new Vector2(0, rb2d.velocity.y);
+        ChangeVel(0, rb2d.velocity.y);
 
         StartCoroutine("UnStun", 0.1);
         StartCoroutine("EndInvulnerability", 0.4f);
@@ -280,19 +294,44 @@ public class PlayerController : MonoBehaviour
         animator.SetTrigger(triggerName);
     }
 
+    private void Land(float velX)
+    {
+        dodged = false;
+        rb2d.gravityScale = 1;
+        StartCoroutine(Slide(velX));
+    }
+
+    private IEnumerator Slide(float velX)
+    {
+        //print("LANDING");
+        yield return null;
+        float time = 0;
+        float currVelX = velX*Constants.SLIDE_INITIAL_MULTIPLIER;
+        float sign = Mathf.Sign(velX);
+
+        while (time < Constants.SLIDE_TIMER && grounded 
+            && sign == Mathf.Sign(rb2d.velocity.x))
+        {
+            currVelX *= Constants.SLIDE_DRAG;
+            rb2d.AddForce(new Vector2(currVelX*Constants.SLIDE_FORCE, 0));
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
     private IEnumerator Jump()
     {
         StartCoroutine("setUnGrounded");
         AnimTrigger(Constants.JUMP);
 
-        rb2d.velocity = new Vector2(rb2d.velocity.x, Constants.JUMP_SPEED);
+        ChangeVel(rb2d.velocity.x, Constants.JUMP_SPEED);
         yield return null;
 
         float time = 0;
 
         while (Input.GetButton(Constants.JUMP) && time < jumpTime)
         {
-            rb2d.velocity = new Vector2(rb2d.velocity.x, Constants.JUMP_SPEED);
+            ChangeVel(rb2d.velocity.x, Constants.JUMP_SPEED);
             time += Time.deltaTime;
             yield return null;
         }
