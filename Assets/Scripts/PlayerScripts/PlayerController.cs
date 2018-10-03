@@ -20,7 +20,8 @@ public class PlayerController : MonoBehaviour
     private bool stunned = false;
     private bool invulnerable = false;
     private bool crouched = false;
-    private bool dodged = false;
+    private bool dJumped = false;
+    private bool running = false;
 
     private int groundTimer = 0;
 
@@ -35,7 +36,10 @@ public class PlayerController : MonoBehaviour
 
     private void Interrupt()
     {
-
+        StopCoroutine("Slide");
+        running = false;
+        rb2d.velocity *= 0;
+        enabled = false;
     }
 
     private void Update()
@@ -60,8 +64,9 @@ public class PlayerController : MonoBehaviour
                 }
             }
             grounded = newGroundedState;
-        }else { groundTimer--; }
+        }else groundTimer--;
         CheckInput();
+        print(running);
     }
 
     private void CheckInput()
@@ -70,7 +75,7 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        else if (Input.GetButtonDown(Constants.CROUCH) && grounded &&
+        if (Input.GetButtonDown(Constants.CROUCH) && grounded &&
             Mathf.Approximately(rb2d.velocity.x, 0))
         {
             crouched = true;
@@ -97,41 +102,43 @@ public class PlayerController : MonoBehaviour
         {
             rb2d.velocity = new Vector2(rb2d.velocity.x, 0.5f);
         }
-        if (Input.GetButtonDown(Constants.JUMP) && !grounded && !dodged)
+        if (Input.GetButtonDown(Constants.JUMP) && !grounded && !dJumped)
         {
-            //Dodge Up
-            if (Input.GetAxis(Constants.VERTICAL) > 0)
+            //Djump Down
+            if (Input.GetAxis(Constants.VERTICAL) < 0)
             {
-                ChangeVel(rb2d.velocity.x * 0.5f, 6);
-            }
-            //Dodge Down
-            else if (Input.GetAxis(Constants.VERTICAL) < 0)
-            {
-                ChangeVel(0, -4);
+                ChangeVel(0, Constants.DJUMP_DOWN_VEL);
             }
             else if (Input.GetAxis(Constants.HORIZONTAL) != 0)
             {
                 //Minimum Side Dodge Velocity
-                if(Mathf.Abs(rb2d.velocity.x) < 0.9f) { ChangeVel(0.9f*Mathf.Sign(rb2d.velocity.x),rb2d.velocity.y); }
-                //Dodge Right
+                if(Mathf.Abs(rb2d.velocity.x) < Constants.DJUMP_SIDE_MIN_VEL) {
+                    ChangeVel(Constants.DJUMP_SIDE_MIN_VEL * Mathf.Sign(rb2d.velocity.x),
+                        rb2d.velocity.y);
+                }
+                //Djump Right
                 if (Input.GetAxis(Constants.HORIZONTAL) > 0)
                 {
-                    ChangeVel(Mathf.Abs(rb2d.velocity.x * 1.5f), 3);
+                    ChangeVel(Mathf.Abs(rb2d.velocity.x * Constants.DJUMP_SIDE_VEL_MULTIPLIER), 
+                        Constants.DJUMP_SIDE_VER_VEL);
                 }
-                //Dodge Left
+                //Djump Left
                 else
                 {
-                    ChangeVel(-Mathf.Abs(rb2d.velocity.x * 1.5f), 3);
+                    ChangeVel(-Mathf.Abs(rb2d.velocity.x * Constants.DJUMP_SIDE_VEL_MULTIPLIER), 
+                        Constants.DJUMP_SIDE_VER_VEL);
                 }
             }
-            //Neutral Dodge
+            //Djump up
             else
             {
-                rb2d.velocity = new Vector2(rb2d.velocity.x * 1.1f, 2);
+                ChangeVel(rb2d.velocity.x * Constants.DJUMP_UP_SIDE_VEL_MULTIPLIER, 
+                    Constants.DJUMP_UP_VEL);
+                //rb2d.velocity = new Vector2(rb2d.velocity.x * 1.1f, 2);
             }
             
             rb2d.gravityScale = 1.5f;
-            dodged = true;
+            dJumped = true;
         }
     }
 
@@ -207,7 +214,7 @@ public class PlayerController : MonoBehaviour
             }
         }
         // Checks for exceeding max speed.
-        if (Mathf.Abs(rb2d.velocity.x) > Constants.MAX_SPEED && !dodged)
+        if (Mathf.Abs(rb2d.velocity.x) > Constants.MAX_SPEED && !dJumped)
         {
             ChangeVel(Mathf.Sign(rb2d.velocity.x) *
                                         Constants.MAX_SPEED, rb2d.velocity.y);
@@ -286,6 +293,14 @@ public class PlayerController : MonoBehaviour
         StartCoroutine("Flash");
     }
 
+    private void Land(float velX)
+    {
+        dJumped = false;
+        rb2d.gravityScale = 1;
+        StartCoroutine(Slide(velX));
+    }
+
+
     private void AnimTrigger(string triggerName)
     {
         foreach (AnimatorControllerParameter p in animator.parameters)
@@ -294,23 +309,15 @@ public class PlayerController : MonoBehaviour
         animator.SetTrigger(triggerName);
     }
 
-    private void Land(float velX)
-    {
-        dodged = false;
-        rb2d.gravityScale = 1;
-        StartCoroutine(Slide(velX));
-    }
 
     private IEnumerator Slide(float velX)
     {
-        //print("LANDING");
         yield return null;
         float time = 0;
         float currVelX = velX*Constants.SLIDE_INITIAL_MULTIPLIER;
         float sign = Mathf.Sign(velX);
 
-        while (time < Constants.SLIDE_TIMER && grounded 
-            && sign == Mathf.Sign(rb2d.velocity.x))
+        while (time < Constants.SLIDE_TIMER && grounded)
         {
             currVelX *= Constants.SLIDE_DRAG;
             rb2d.AddForce(new Vector2(currVelX*Constants.SLIDE_FORCE, 0));
