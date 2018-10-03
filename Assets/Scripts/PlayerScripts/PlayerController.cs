@@ -66,7 +66,6 @@ public class PlayerController : MonoBehaviour
             grounded = newGroundedState;
         }else groundTimer--;
         CheckInput();
-        print(running);
     }
 
     private void CheckInput()
