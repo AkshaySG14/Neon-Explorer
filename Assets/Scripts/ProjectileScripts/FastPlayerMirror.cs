@@ -12,6 +12,8 @@ public class FastPlayerMirror : MonoBehaviour
 
     private const float SHOOT_FORCE = 5f;
 
+    private Vector2 endVector;
+
     // Use this for initialization
     void Start()
     {
@@ -26,33 +28,28 @@ public class FastPlayerMirror : MonoBehaviour
 
     public void SetPathVector(Vector2 endVector)
     {
+        this.endVector = endVector;
         this.rb2d = GetComponent<Rigidbody2D>();
-        StartCoroutine("SlowDown", endVector);
+        StartCoroutine("SlowDown");
         StartCoroutine("SelfDestruct");
     }
 
     void OnCollisionEnter2D(Collision2D collisionObject)
     {
-        var objectTag = collisionObject.gameObject.tag;
-
-        if (objectTag.Equals(ENEMY_TAG))
-        {
-            collisionObject.gameObject.SendMessage(
-                "TakeDamage",
-                1,
-                SendMessageOptions.DontRequireReceiver
-            );
-        }
-        Explode();
+        StopCoroutine("SlowDown");
+        rb2d.position += rb2d.velocity / 10f;
     }
 
-    private IEnumerator SlowDown(Vector2 endVector)
+    private IEnumerator SlowDown()
     {
         while (Mathf.Abs(endVector.magnitude - transform.position.magnitude) > 0.01f)
         {
             yield return new WaitForSeconds(Time.deltaTime);
-            transform.position = Vector2.Lerp(transform.position, endVector, 1 / 10.0f);
+            rb2d.velocity = new Vector2(endVector.x - transform.position.x, endVector.y - transform.position.y);
+            rb2d.position = Vector2.Lerp(transform.position, endVector, 1 / 10.0f);
         }
+        yield return null;
+        rb2d.velocity = Vector2.zero;
     }
 
     private IEnumerator SelfDestruct()

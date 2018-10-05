@@ -31,21 +31,6 @@ public class SlowPlayerMirror : MonoBehaviour
         StartCoroutine("SelfDestruct");
     }
 
-    void OnCollisionEnter2D(Collision2D collisionObject)
-    {
-        var objectTag = collisionObject.gameObject.tag;
-
-        if (objectTag.Equals(ENEMY_TAG))
-        {
-            collisionObject.gameObject.SendMessage(
-                "TakeDamage",
-                1,
-                SendMessageOptions.DontRequireReceiver
-            );
-        }
-        Explode();
-    }
-
     private void Launch(Vector2 pathVector)
     {
         Vector2 position = new Vector2(transform.position.x, transform.position.y);
