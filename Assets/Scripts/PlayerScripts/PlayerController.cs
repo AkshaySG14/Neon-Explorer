@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
     private bool running = false;
 
     private int groundTimer = 0;
+    private bool isLandingFrame = false;
+
 
     private Animator animator;
     private Rigidbody2D rb2d;
@@ -56,16 +58,23 @@ public class PlayerController : MonoBehaviour
                 1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
             );
             if (!grounded) {
-                if (newGroundedState) 
+                if (newGroundedState)
                 {
                     AnimTrigger(Constants.GROUNDED);
+                    animator.SetBool(Constants.AIR, false);
                     groundTimer = Constants.GROUND_CHECK_TIMER;
+                    isLandingFrame = true;
                     Land(rb2d.velocity.x);
+                }
+                else
+                {
+                    animator.SetBool(Constants.AIR, true);
                 }
             }
             grounded = newGroundedState;
-        }else groundTimer--;
+        } else groundTimer--;
         CheckInput();
+        isLandingFrame = false;
     }
 
     private void CheckInput()
@@ -74,18 +83,42 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        if (Input.GetButtonDown(Constants.CROUCH) && grounded &&
-            Mathf.Approximately(rb2d.velocity.x, 0))
+        if (Input.GetButtonDown(Constants.CROUCH) && grounded)
         {
-            crouched = true;
-            AnimTrigger(Constants.CROUCH);
+            Crouch(true);
+            return;
         }
-        else if (Input.GetButtonUp(Constants.CROUCH) && grounded)
+        else if (Input.GetButtonUp(Constants.CROUCH) || !grounded)
         {
-            crouched = false;
-            AnimTrigger(Constants.IDLE);
+            Crouch(false);
         }
-        else if (Input.GetButtonDown(Constants.SHOOT_FAST_MIRROR))
+
+        if (isLandingFrame)
+        {
+            if (Input.GetButton(Constants.CROUCH))
+            {
+                Crouch(true);
+                return;
+            }
+        }
+        else
+        {
+            float h = Input.GetAxis(Constants.HORIZONTAL);
+            // Plays idle and halts player if no horizontal input and not crouched.
+            if (Mathf.Approximately(h, 0) && !crouched && grounded)
+            {
+                ChangeVel(0, rb2d.velocity.y);
+                AnimTrigger(Constants.IDLE);
+            }
+            else if (!crouched)
+            {
+                Move(h);
+            }
+            CheckFlip(h);
+        }
+
+        
+        if (Input.GetButtonDown(Constants.SHOOT_FAST_MIRROR))
         {
             FireMirror(fastMirror);
         }
@@ -93,7 +126,7 @@ public class PlayerController : MonoBehaviour
         {
             FireMirror(slowMirror);
         }
-        else if (Input.GetButtonDown(Constants.JUMP) && grounded && !crouched)
+        if (Input.GetButtonDown(Constants.JUMP) && grounded)
         {
             StartCoroutine(Jump());
         }
@@ -103,8 +136,9 @@ public class PlayerController : MonoBehaviour
         }
         if (Input.GetButtonDown(Constants.JUMP) && !grounded && !dJumped)
         {
+            print(Input.GetAxis(Constants.VERTICAL));
             //Djump Down
-            if (Input.GetAxis(Constants.VERTICAL) < 0)
+            if (Input.GetAxisRaw(Constants.VERTICAL) < 0)
             {
                 ChangeVel(0, Constants.DJUMP_DOWN_VEL);
             }
@@ -133,7 +167,6 @@ public class PlayerController : MonoBehaviour
             {
                 ChangeVel(rb2d.velocity.x * Constants.DJUMP_UP_SIDE_VEL_MULTIPLIER, 
                     Constants.DJUMP_UP_VEL);
-                //rb2d.velocity = new Vector2(rb2d.velocity.x * 1.1f, 2);
             }
             
             rb2d.gravityScale = 1.5f;
@@ -141,26 +174,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
     private void FixedUpdate()
     {
         if (stunned)
         {
             return;
         }
+     
 
-        float h = Input.GetAxis(Constants.HORIZONTAL);
-
-        // Plays idle and halts player if no horizontal input and not crouched.
-        if (Mathf.Approximately(h, 0) && !crouched && grounded)
-        {
-            ChangeVel(0, rb2d.velocity.y);
-            AnimTrigger(Constants.IDLE);
-        }
-        else
-        {
-            CheckFlip(h);
-            Move(h);
-        }
+       
     }
 
     private void ChangeVel(float x, float y)
@@ -194,7 +217,6 @@ public class PlayerController : MonoBehaviour
         AnimTrigger(Constants.MOVEMENT);
 
         animator.SetFloat(Constants.SPEED, Mathf.Abs(h));
-
         if (h * rb2d.velocity.x < Constants.MAX_SPEED)
         {
             if (grounded)
@@ -299,6 +321,21 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(Slide(velX));
     }
 
+    private void Crouch(bool state)
+    {
+        if (state)
+        {
+            crouched = true;
+            rb2d.drag = Constants.CROUCH_DRAG;
+            AnimTrigger(Constants.CROUCH);
+        }
+        else
+        {
+            crouched = false;
+            AnimTrigger(Constants.IDLE);
+            rb2d.drag = 0;
+        }
+    }
 
     private void AnimTrigger(string triggerName)
     {
@@ -315,18 +352,19 @@ public class PlayerController : MonoBehaviour
         float time = 0;
         float currVelX = velX*Constants.SLIDE_INITIAL_MULTIPLIER;
         float sign = Mathf.Sign(velX);
-
-        while (time < Constants.SLIDE_TIMER && grounded)
+        while (time < Constants.SLIDE_TIMER && grounded && Input.GetAxis(Constants.HORIZONTAL) == 0)
         {
-            currVelX *= Constants.SLIDE_DRAG;
-            rb2d.AddForce(new Vector2(currVelX*Constants.SLIDE_FORCE, 0));
-            time += Time.deltaTime;
             yield return null;
+            currVelX *= Constants.SLIDE_DRAG;
+             rb2d.AddForceAtPosition(new Vector2(currVelX*Constants.SLIDE_FORCE* Time.deltaTime, 0), rb2d.position);
+            time += Time.deltaTime;
+            
         }
     }
 
     private IEnumerator Jump()
     {
+        crouched = false;
         StartCoroutine("setUnGrounded");
         AnimTrigger(Constants.JUMP);
 
