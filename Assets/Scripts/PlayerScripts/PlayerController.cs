@@ -352,7 +352,7 @@ public class PlayerController : MonoBehaviour
         float time = 0;
         float currVelX = velX*Constants.SLIDE_INITIAL_MULTIPLIER;
         float sign = Mathf.Sign(velX);
-        while (time < Constants.SLIDE_TIMER && grounded && Input.GetAxis(Constants.HORIZONTAL) == 0)
+        while (time < Constants.SLIDE_TIMER && grounded && (Input.GetAxis(Constants.HORIZONTAL) == 0 || crouched))
         {
             yield return null;
             currVelX *= Constants.SLIDE_DRAG;
