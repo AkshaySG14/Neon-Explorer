@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\PlayerScripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\FastPlayerMirror.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\PlayerBullet.cs" />
+    <Compile Include="Assets\Scripts\ProjectileScripts\PlayerDefaultRay.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\SlowPlayerMirror.cs" />
     <None Include="Assets\Pixel Bird\Read Me.txt" />
     <None Include="Assets\Scripts\Shaders\PlayerDamage.shader" />

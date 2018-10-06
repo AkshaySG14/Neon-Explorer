@@ -136,7 +136,6 @@ public class PlayerController : MonoBehaviour
         }
         if (Input.GetButtonDown(Constants.JUMP) && !grounded && !dJumped)
         {
-            print(Input.GetAxis(Constants.VERTICAL));
             //Djump Down
             if (Input.GetAxisRaw(Constants.VERTICAL) < 0)
             {
@@ -351,7 +350,6 @@ public class PlayerController : MonoBehaviour
         yield return null;
         float time = 0;
         float currVelX = velX*Constants.SLIDE_INITIAL_MULTIPLIER;
-        float sign = Mathf.Sign(velX);
         while (time < Constants.SLIDE_TIMER && grounded && (Input.GetAxis(Constants.HORIZONTAL) == 0 || crouched))
         {
             yield return null;
