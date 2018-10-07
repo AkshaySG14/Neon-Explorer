@@ -27,7 +27,8 @@
         public const int CROUCH_DRAG = 10;
 
         public const float GROUND_RADIUS = 0.5f;
-        public const int GROUND_CHECK_TIMER = 5;
+        public const int GROUND_CHECK_TIMER = 5; //For how many frames is the ground collision disabled after landing
+        public const int GROUND_CHECK_TIMER_FALL = 15;
         
 
         public const string IDLE = "Idle";

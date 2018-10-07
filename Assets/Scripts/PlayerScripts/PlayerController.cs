@@ -5,7 +5,7 @@ using Player;
 public class PlayerController : MonoBehaviour
 {
 
-    public Transform groundCheck;
+    public RectTransform groundCheck;
     public Transform projectile;
 
     public Camera camera;
@@ -23,9 +23,9 @@ public class PlayerController : MonoBehaviour
     private bool dJumped = false;
     private bool running = false;
 
-    private int groundTimer = 0;
-    private bool isLandingFrame = false;
-
+    private int groundTimer = 0; //Cool down timer for how long the ground collision will be disabled for 
+    private enum frameStates{ NormalFrame = 0,LandingFrame = 1,JumpingFrame = 2};
+    private int currFrameState = 0;
 
     private Animator animator;
     private Rigidbody2D rb2d;
@@ -52,29 +52,45 @@ public class PlayerController : MonoBehaviour
             // ground check transform.
             Debug.DrawRay(groundCheck.position, Vector2.down, Color.green);
             bool newGroundedState = Physics2D.Raycast(
+                groundCheck.position + (Vector3)groundCheck.sizeDelta,
+                Vector2.down,
+                0.25f,
+                1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
+            ) || Physics2D.Raycast(
                 groundCheck.position,
                 Vector2.down,
                 0.25f,
                 1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
-            );
-            if (!grounded) {
+            ); ;
+
+            if (grounded != newGroundedState)
+            {
                 if (newGroundedState)
                 {
-                    AnimTrigger(Constants.GROUNDED);
                     animator.SetBool(Constants.AIR, false);
-                    groundTimer = Constants.GROUND_CHECK_TIMER;
-                    isLandingFrame = true;
+                    currFrameState = (int)frameStates.LandingFrame;
+
+                    AnimTrigger(Constants.GROUNDED);
+                    startGroundTimer(Constants.GROUND_CHECK_TIMER);
+
                     Land(rb2d.velocity.x);
                 }
                 else
                 {
                     animator.SetBool(Constants.AIR, true);
+                    currFrameState = (int)frameStates.JumpingFrame;
                 }
             }
             grounded = newGroundedState;
-        } else groundTimer--;
+        }
+        else groundTimer--;
+        if (currFrameState != 0)
+        {
+            print(currFrameState);
+        }
         CheckInput();
-        isLandingFrame = false;
+
+        if (currFrameState != (int)frameStates.NormalFrame) currFrameState = (int)frameStates.NormalFrame;
     }
 
     private void CheckInput()
@@ -92,18 +108,12 @@ public class PlayerController : MonoBehaviour
         {
             Crouch(false);
         }
+    
 
-        if (isLandingFrame)
+        float h = Input.GetAxis(Constants.HORIZONTAL);
+
+        if (currFrameState == (int)frameStates.NormalFrame)
         {
-            if (Input.GetButton(Constants.CROUCH))
-            {
-                Crouch(true);
-                return;
-            }
-        }
-        else
-        {
-            float h = Input.GetAxis(Constants.HORIZONTAL);
             // Plays idle and halts player if no horizontal input and not crouched.
             if (Mathf.Approximately(h, 0) && !crouched && grounded)
             {
@@ -115,6 +125,23 @@ public class PlayerController : MonoBehaviour
                 Move(h);
             }
             CheckFlip(h);
+        }
+        else if (currFrameState == (int)frameStates.LandingFrame)
+        {
+            if (Input.GetButton(Constants.CROUCH))
+            {
+                Crouch(true);
+                return;
+            }
+        }
+        else //is jumpingFrame
+        {
+            if (rb2d.velocity.y == 0)
+            {
+             
+                startGroundTimer(Constants.GROUND_CHECK_TIMER_FALL);
+                //rb2d.AddForce(new Vector2(1.2f* Mathf.Sign(rb2d.velocity.x)*10, 0));
+            }
         }
 
         
@@ -183,6 +210,16 @@ public class PlayerController : MonoBehaviour
      
 
        
+    }
+
+    private void startGroundTimer(int val)
+    {
+        groundTimer = val;
+    }
+
+    private void stopGroundTimer()
+    {
+        groundTimer = 0;
     }
 
     private void ChangeVel(float x, float y)
