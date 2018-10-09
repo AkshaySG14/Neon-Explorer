@@ -66,7 +66,6 @@ public class PlayerController : MonoBehaviour
                 0.25f,
                 1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
             ); ;
-            print(newGroundedState);
 
             if (grounded != newGroundedState)
             {
@@ -82,6 +81,8 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
+                    if((rb2d.velocity.y == 0)) { print("fall"); }
+                    else { print("jump"); }
                     animator.SetBool(Constants.AIR, true);
                     currFrameState = (int)frameStates.JumpingFrame;
                 }
@@ -89,10 +90,6 @@ public class PlayerController : MonoBehaviour
             grounded = newGroundedState;
         }
         else groundTimer--;
-        if (currFrameState != 0)
-        {
-            print(currFrameState);
-        }
 
         CheckInput();
         ApplyForces();
