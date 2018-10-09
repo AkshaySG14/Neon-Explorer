@@ -2,7 +2,7 @@
 {
     public static class Constants
     {
-        public const float JUMP_FORCE = 150f;
+        public const float JUMP_FORCE = 150f*2;
         public const float JUMP_SPEED = 6f;
         public const float AIR_SPEED_MULTIPLIER = 0.05f;
         public const float JUMP_DECAY = 0.6f;
