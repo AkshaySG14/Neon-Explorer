@@ -24,8 +24,10 @@ public class PlayerController : MonoBehaviour
     private bool running = false;
 
     private int groundTimer = 0; //Cool down timer for how long the ground collision will be disabled for 
-    private enum frameStates{ NormalFrame = 0,LandingFrame = 1,JumpingFrame = 2};
+    private enum frameStates { NormalFrame = 0, LandingFrame = 1, JumpingFrame = 2 };
     private int currFrameState = 0;
+
+    private Vector2 frameAddForce = new Vector2(0, 0);
 
     private Animator animator;
     private Rigidbody2D rb2d;
@@ -51,8 +53,10 @@ public class PlayerController : MonoBehaviour
             // Checks to see if there is something separating the player and the 
             // ground check transform.
             Debug.DrawRay(groundCheck.position, Vector2.down, Color.green);
+
+            Debug.DrawRay(new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x*groundCheck.localScale.x*getFacing()*2, groundCheck.position.y), Vector2.down, Color.red);
             bool newGroundedState = Physics2D.Raycast(
-                groundCheck.position + (Vector3)groundCheck.sizeDelta,
+                new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x * groundCheck.localScale.x* getFacing() * 2, groundCheck.position.y),
                 Vector2.down,
                 0.25f,
                 1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
@@ -62,6 +66,7 @@ public class PlayerController : MonoBehaviour
                 0.25f,
                 1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
             ); ;
+            print(newGroundedState);
 
             if (grounded != newGroundedState)
             {
@@ -71,7 +76,7 @@ public class PlayerController : MonoBehaviour
                     currFrameState = (int)frameStates.LandingFrame;
 
                     AnimTrigger(Constants.GROUNDED);
-                    startGroundTimer(Constants.GROUND_CHECK_TIMER);
+                    groundTimer = Constants.GROUND_CHECK_TIMER;
 
                     Land(rb2d.velocity.x);
                 }
@@ -88,9 +93,20 @@ public class PlayerController : MonoBehaviour
         {
             print(currFrameState);
         }
+
         CheckInput();
+        ApplyForces();
 
         if (currFrameState != (int)frameStates.NormalFrame) currFrameState = (int)frameStates.NormalFrame;
+    }
+
+    private void ApplyForces()
+    {
+        if (frameAddForce.x != 0 || frameAddForce.y != 0) {
+            rb2d.AddForce(frameAddForce);
+            frameAddForce.x = 0;
+            frameAddForce.y = 0;
+        }
     }
 
     private void CheckInput()
@@ -138,9 +154,8 @@ public class PlayerController : MonoBehaviour
         {
             if (rb2d.velocity.y == 0)
             {
-             
-                startGroundTimer(Constants.GROUND_CHECK_TIMER_FALL);
-                //rb2d.AddForce(new Vector2(1.2f* Mathf.Sign(rb2d.velocity.x)*10, 0));
+                groundTimer = Constants.GROUND_CHECK_TIMER_FALL;
+                rb2d.AddForce(new Vector2(1.2f* Mathf.Sign(rb2d.velocity.x)*10, 10));
             }
         }
 
@@ -212,14 +227,21 @@ public class PlayerController : MonoBehaviour
        
     }
 
-    private void startGroundTimer(int val)
+    private int getFacing()
     {
-        groundTimer = val;
+        if (facingRight) return 1;
+        return -1;
     }
 
-    private void stopGroundTimer()
+    private void AddForce(float x, float y)
     {
-        groundTimer = 0;
+        frameAddForce.x = x;
+        frameAddForce.y = y;
+    }
+
+    private void AddForce(Vector2 add)
+    {
+        frameAddForce += add;
     }
 
     private void ChangeVel(float x, float y)
@@ -257,14 +279,14 @@ public class PlayerController : MonoBehaviour
         {
             if (grounded)
             {
-                rb2d.AddForce(Vector2.right *
+                AddForce(Vector2.right *
                               h *
                               Constants.MOVE_FORCE *
                               Constants.GROUND_SPEED_MULTIPLIER);
             }
             else
             {
-                rb2d.AddForce(Vector2.right *
+                AddForce(Vector2.right *
                               h *
                               Constants.MOVE_FORCE *
                               Constants.AIR_SPEED_MULTIPLIER);
@@ -391,7 +413,7 @@ public class PlayerController : MonoBehaviour
         {
             yield return null;
             currVelX *= Constants.SLIDE_DRAG;
-             rb2d.AddForceAtPosition(new Vector2(currVelX*Constants.SLIDE_FORCE* Time.deltaTime, 0), rb2d.position);
+             AddForce(currVelX*Constants.SLIDE_FORCE* Time.deltaTime, 0);
             time += Time.deltaTime;
             
         }
