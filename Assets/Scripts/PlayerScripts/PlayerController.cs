@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     private bool running = false;
 
     private int groundTimer = 0; //Cool down timer for how long the ground collision will be disabled for 
-    private enum frameStates { NormalFrame = 0, LandingFrame = 1, JumpingFrame = 2 };
+    private enum frameStates : int { NormalFrame = 0, LandingFrame = 1, JumpingFrame = 2 };
     private int currFrameState = 0;
 
     private Vector2 frameAddForce = new Vector2(0, 0);
@@ -53,7 +53,6 @@ public class PlayerController : MonoBehaviour
             // Checks to see if there is something separating the player and the 
             // ground check transform.
             Debug.DrawRay(groundCheck.position, Vector2.down, Color.green);
-
             Debug.DrawRay(new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x*groundCheck.localScale.x*getFacing()*2, groundCheck.position.y), Vector2.down, Color.red);
             bool newGroundedState = Physics2D.Raycast(
                 new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x * groundCheck.localScale.x* getFacing() * 2, groundCheck.position.y),
@@ -112,6 +111,7 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
+
         if (Input.GetButtonDown(Constants.CROUCH) && grounded)
         {
             Crouch(true);
