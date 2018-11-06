@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
-using Player;
+using PlayerConsts;
 
 public class PlayerController : MonoBehaviour
 {
@@ -327,7 +327,6 @@ public class PlayerController : MonoBehaviour
 
         GameObject mirrorProj;
         mirrorProj = Instantiate(gameObject, projectile.position, projectile.rotation);
-
         mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
     }
 

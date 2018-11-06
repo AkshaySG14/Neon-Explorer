@@ -1,4 +1,4 @@
-﻿namespace Player
+﻿namespace PlayerConsts
 {
     public static class Constants
     {
