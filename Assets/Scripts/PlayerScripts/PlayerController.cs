@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public Camera camera;
     public GameObject fastMirror;
     public GameObject slowMirror;
+    public GameObject laser;
 
     private int health = 5;
     private float jumpTime = 0.1f;
@@ -31,11 +32,13 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
     private Rigidbody2D rb2d;
+    private LineRenderer mLineRenderer;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         rb2d = GetComponent<Rigidbody2D>();
+        mLineRenderer = GetComponent<LineRenderer>();
     }
 
     private void Interrupt()
@@ -53,9 +56,9 @@ public class PlayerController : MonoBehaviour
             // Checks to see if there is something separating the player and the 
             // ground check transform.
             Debug.DrawRay(groundCheck.position, Vector2.down, Color.green);
-            Debug.DrawRay(new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x*groundCheck.localScale.x*getFacing()*2, groundCheck.position.y), Vector2.down, Color.red);
+            Debug.DrawRay(new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x * groundCheck.localScale.x * getFacing() * 2, groundCheck.position.y), Vector2.down, Color.red);
             bool newGroundedState = Physics2D.Raycast(
-                new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x * groundCheck.localScale.x* getFacing() * 2, groundCheck.position.y),
+                new Vector2(groundCheck.position.x + groundCheck.sizeDelta.x * groundCheck.localScale.x * getFacing() * 2, groundCheck.position.y),
                 Vector2.down,
                 0.25f,
                 1 << LayerMask.NameToLayer(Constants.BLOCKING_LAYER)
@@ -80,7 +83,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if((rb2d.velocity.y == 0)) { print("fall"); }
+                    if ((rb2d.velocity.y == 0)) { print("fall"); }
                     else { print("jump"); }
                     animator.SetBool(Constants.AIR, true);
                     currFrameState = (int)frameStates.JumpingFrame;
@@ -98,7 +101,8 @@ public class PlayerController : MonoBehaviour
 
     private void ApplyForces()
     {
-        if (frameAddForce.x != 0 || frameAddForce.y != 0) {
+        if (frameAddForce.x != 0 || frameAddForce.y != 0)
+        {
             rb2d.AddForce(frameAddForce);
             frameAddForce.x = 0;
             frameAddForce.y = 0;
@@ -121,7 +125,7 @@ public class PlayerController : MonoBehaviour
         {
             Crouch(false);
         }
-    
+
 
         float h = Input.GetAxis(Constants.HORIZONTAL);
 
@@ -152,11 +156,11 @@ public class PlayerController : MonoBehaviour
             if (rb2d.velocity.y == 0)
             {
                 groundTimer = Constants.GROUND_CHECK_TIMER_FALL;
-                rb2d.AddForce(new Vector2(1.2f* Mathf.Sign(rb2d.velocity.x)*10, 10));
+                rb2d.AddForce(new Vector2(1.2f * Mathf.Sign(rb2d.velocity.x) * 10, 10));
             }
         }
 
-        
+
         if (Input.GetButtonDown(Constants.SHOOT_FAST_MIRROR))
         {
             FireMirror(fastMirror);
@@ -165,6 +169,11 @@ public class PlayerController : MonoBehaviour
         {
             FireMirror(slowMirror);
         }
+        else if (Input.GetButtonDown(Constants.SHOOT_LASER))
+        {
+            FireLaser();
+        }
+
         if (Input.GetButtonDown(Constants.JUMP) && grounded)
         {
             StartCoroutine(Jump());
@@ -183,30 +192,31 @@ public class PlayerController : MonoBehaviour
             else if (Input.GetAxis(Constants.HORIZONTAL) != 0)
             {
                 //Minimum Side Dodge Velocity
-                if(Mathf.Abs(rb2d.velocity.x) < Constants.DJUMP_SIDE_MIN_VEL) {
+                if (Mathf.Abs(rb2d.velocity.x) < Constants.DJUMP_SIDE_MIN_VEL)
+                {
                     ChangeVel(Constants.DJUMP_SIDE_MIN_VEL * Mathf.Sign(rb2d.velocity.x),
                         rb2d.velocity.y);
                 }
                 //Djump Right
                 if (Input.GetAxis(Constants.HORIZONTAL) > 0)
                 {
-                    ChangeVel(Mathf.Abs(rb2d.velocity.x * Constants.DJUMP_SIDE_VEL_MULTIPLIER), 
+                    ChangeVel(Mathf.Abs(rb2d.velocity.x * Constants.DJUMP_SIDE_VEL_MULTIPLIER),
                         Constants.DJUMP_SIDE_VER_VEL);
                 }
                 //Djump Left
                 else
                 {
-                    ChangeVel(-Mathf.Abs(rb2d.velocity.x * Constants.DJUMP_SIDE_VEL_MULTIPLIER), 
+                    ChangeVel(-Mathf.Abs(rb2d.velocity.x * Constants.DJUMP_SIDE_VEL_MULTIPLIER),
                         Constants.DJUMP_SIDE_VER_VEL);
                 }
             }
             //Djump up
             else
             {
-                ChangeVel(rb2d.velocity.x * Constants.DJUMP_UP_SIDE_VEL_MULTIPLIER, 
+                ChangeVel(rb2d.velocity.x * Constants.DJUMP_UP_SIDE_VEL_MULTIPLIER,
                     Constants.DJUMP_UP_VEL);
             }
-            
+
             rb2d.gravityScale = 1.5f;
             dJumped = true;
         }
@@ -219,9 +229,6 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-     
-
-       
     }
 
     private int getFacing()
@@ -349,6 +356,29 @@ public class PlayerController : MonoBehaviour
         mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
     }
 
+    private void FireLaser()
+    {
+        if (grounded)
+        {
+            AnimTrigger(Constants.SHOOT);
+            StopCoroutine("ShootEnd");
+            StartCoroutine("ShootEnd");
+        }
+
+        Vector3 mousePos = Input.mousePosition;
+        mousePos = camera.ScreenToWorldPoint(mousePos);
+
+        if (mousePos.x < transform.position.x && facingRight)
+        {
+            Flip();
+        }
+        else if (mousePos.x > transform.position.x && !facingRight)
+        {
+            Flip();
+        }
+        GameObject laserProj = Instantiate(laser, projectile.position, projectile.rotation);
+        laserProj.SendMessage("SetPathVector", mousePos - projectile.position);
+    }
 
     private void TakeDamage(int damage)
     {
@@ -405,14 +435,14 @@ public class PlayerController : MonoBehaviour
     {
         yield return null;
         float time = 0;
-        float currVelX = velX*Constants.SLIDE_INITIAL_MULTIPLIER;
+        float currVelX = velX * Constants.SLIDE_INITIAL_MULTIPLIER;
         while (time < Constants.SLIDE_TIMER && grounded && (Input.GetAxis(Constants.HORIZONTAL) == 0 || crouched))
         {
             yield return null;
             currVelX *= Constants.SLIDE_DRAG;
-             AddForce(currVelX*Constants.SLIDE_FORCE* Time.deltaTime, 0);
+            AddForce(currVelX * Constants.SLIDE_FORCE * Time.deltaTime, 0);
             time += Time.deltaTime;
-            
+
         }
     }
 
