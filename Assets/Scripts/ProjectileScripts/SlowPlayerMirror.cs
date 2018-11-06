@@ -12,9 +12,12 @@ public class SlowPlayerMirror : MonoBehaviour
 
     private const float SHOOT_FORCE = 0.5f;
 
+    private bool spawning = true;
+
     // Use this for initialization
     void Start()
     {
+        this.GetComponent<Renderer>().enabled = false;
         this.rb2d = GetComponent<Rigidbody2D>();
     }
 
@@ -35,6 +38,15 @@ public class SlowPlayerMirror : MonoBehaviour
     {
         Vector2 position = new Vector2(transform.position.x, transform.position.y);
         rb2d.velocity = (pathVector - position) * SHOOT_FORCE;
+        StartCoroutine(Launcher());
+    }
+
+    private IEnumerator Launcher()
+    {
+        yield return 0;
+        yield return 0;
+        spawning = false;
+        this.GetComponent<Renderer>().enabled = true;
     }
 
     private IEnumerator SelfDestruct()
@@ -48,5 +60,13 @@ public class SlowPlayerMirror : MonoBehaviour
         Instantiate(explosionPrefab, gameObject.transform.position,
                     gameObject.transform.rotation);
         Destroy(this.gameObject);
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (spawning)
+        {
+            Explode();
+        }
     }
 }

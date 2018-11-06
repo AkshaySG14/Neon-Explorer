@@ -12,11 +12,14 @@ public class FastPlayerMirror : MonoBehaviour
 
     private const float SHOOT_FORCE = 5f;
 
+    private bool spawning = true;
+
     private Vector2 endVector;
 
     // Use this for initialization
     void Start()
     {
+        this.GetComponent<Renderer>().enabled = false;
         this.rb2d = GetComponent<Rigidbody2D>();
     }
 
@@ -30,14 +33,16 @@ public class FastPlayerMirror : MonoBehaviour
     {
         this.endVector = endVector;
         this.rb2d = GetComponent<Rigidbody2D>();
+        StartCoroutine(Launcher());
         StartCoroutine("SlowDown");
         StartCoroutine("SelfDestruct");
     }
 
+
+
     void OnCollisionEnter2D(Collision2D collisionObject)
     {
-        StopCoroutine("SlowDown");
-        rb2d.position += rb2d.velocity / 10f;
+        Explode();
     }
 
     private IEnumerator SlowDown()
@@ -50,6 +55,14 @@ public class FastPlayerMirror : MonoBehaviour
         }
         yield return null;
         rb2d.velocity = Vector2.zero;
+    }
+
+    private IEnumerator Launcher()
+    {
+        yield return 0;
+        yield return 0;
+        spawning = false;
+        this.GetComponent<Renderer>().enabled = true;
     }
 
     private IEnumerator SelfDestruct()
