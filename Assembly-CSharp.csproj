@@ -76,7 +76,6 @@
     <Compile Include="Assets\Scripts\ProjectileScripts\PlayerMirror.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\ProjectileConstants.cs" />
     <Compile Include="Assets\Scripts\ProjectileScripts\SlowPlayerMirror.cs" />
-    <None Include="Assets\Pixel Bird\Read Me.txt" />
     <None Include="Assets\Scripts\Shaders\PlayerDamage.shader" />
     <None Include="Assets\Fonts\OFL.txt" />
     <Reference Include="UnityEditor.StandardEvents">
