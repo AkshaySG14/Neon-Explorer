@@ -83,8 +83,6 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if ((rb2d.velocity.y == 0)) { print("fall"); }
-                    else { print("jump"); }
                     animator.SetBool(Constants.AIR, true);
                     currFrameState = (int)frameStates.JumpingFrame;
                 }
