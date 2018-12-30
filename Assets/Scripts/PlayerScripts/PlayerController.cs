@@ -23,12 +23,14 @@ public class PlayerController : MonoBehaviour
     private bool crouched = false;
     private bool dJumped = false;
     private bool running = false;
+    private bool aiming = false;
 
     private int groundTimer = 0; //Cool down timer for how long the ground collision will be disabled for 
     private enum frameStates : int { NormalFrame = 0, LandingFrame = 1, JumpingFrame = 2 };
     private int currFrameState = 0;
 
     private Vector2 frameAddForce = new Vector2(0, 0);
+    private Vector3 storedMousePos;
 
     private Animator animator;
     private Rigidbody2D rb2d;
@@ -161,11 +163,20 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown(Constants.SHOOT_FAST_MIRROR))
         {
-            FireMirror(fastMirror);
+            if (aiming)
+            {
+                FireFastMirror();
+                aiming = false;
+            }
+            else
+            {
+                storedMousePos = camera.ScreenToWorldPoint(Input.mousePosition);
+                aiming = true;
+            }
         }
         else if (Input.GetButtonDown(Constants.SHOOT_SLOW_MIRROR))
         {
-            FireMirror(slowMirror);
+            FireSlowMirror();
         }
         else if (Input.GetButtonDown(Constants.SHOOT_LASER))
         {
@@ -302,7 +313,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void FireMirror(GameObject gameObject)
+    private void FireFastMirror()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos = camera.ScreenToWorldPoint(mousePos);
+
+        if (storedMousePos.x < transform.position.x && facingRight)
+        {
+            Flip();
+        }
+        else if (storedMousePos.x > transform.position.x && !facingRight)
+        {
+            Flip();
+        }
+
+        if (grounded)
+        {
+            AnimTrigger(Constants.SHOOT);
+            StopCoroutine("ShootEnd");
+            StartCoroutine("ShootEnd");
+        }
+
+        GameObject mirrorProj;
+        mirrorProj = Instantiate(fastMirror, projectile.position, Quaternion.FromToRotation(Vector3.right, mousePos - storedMousePos));
+        mirrorProj.SendMessage("SetPathVector", new Vector2(storedMousePos.x, storedMousePos.y));
+    }
+
+    private void FireSlowMirror()
     {
         Vector3 mousePos = Input.mousePosition;
         mousePos = camera.ScreenToWorldPoint(mousePos);
@@ -316,20 +353,6 @@ public class PlayerController : MonoBehaviour
             Flip();
         }
 
-        if (grounded)
-        {
-            AnimTrigger(Constants.SHOOT);
-            StopCoroutine("ShootEnd");
-            StartCoroutine("ShootEnd");
-        }
-
-        GameObject mirrorProj;
-        mirrorProj = Instantiate(gameObject, projectile.position, projectile.rotation);
-        mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
-    }
-
-    private void FireSlowMirror()
-    {
         if (grounded)
         {
             AnimTrigger(Constants.SHOOT);
@@ -340,16 +363,6 @@ public class PlayerController : MonoBehaviour
         GameObject mirrorProj;
         mirrorProj = Instantiate(slowMirror, projectile.position, projectile.rotation);
 
-        Vector3 mousePos = Input.mousePosition;
-        mousePos = camera.ScreenToWorldPoint(mousePos);
-        if (mousePos.x < transform.position.x && facingRight)
-        {
-            Flip();
-        }
-        else if (mousePos.x > transform.position.x && !facingRight)
-        {
-            Flip();
-        }
         mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
     }
 
@@ -386,6 +399,7 @@ public class PlayerController : MonoBehaviour
 
         stunned = true;
         invulnerable = true;
+        aiming = false;
 
         health -= damage;
 

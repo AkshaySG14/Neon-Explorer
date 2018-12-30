@@ -6,8 +6,8 @@ public class BouncingLaser : MonoBehaviour
 {
 
     public int laserDistance;
-    public string bounceTag;
-    public string playerTag;
+    public string tileTag;
+    public string mirrorTag;
     public int maxBounce;
 
     private LineRenderer mLineRenderer;
@@ -49,24 +49,27 @@ public class BouncingLaser : MonoBehaviour
         mLineRenderer.SetPosition(0, pos);
         mLineRenderer.positionCount = 1;
 
-        LayerMask layerMask = LayerMask.GetMask("Blocking");
+        LayerMask blockLayer = LayerMask.GetMask("Blocking");
+        LayerMask projectileLayer = LayerMask.GetMask("Projectile");
 
         while (loopActive)
         {
-            RaycastHit2D hit2D = Physics2D.Raycast(pos, pathVector, distInterval, layerMask);
-            if (hit2D)
+            RaycastHit2D hit2D1 = Physics2D.Raycast(pos, pathVector, distInterval, blockLayer);
+            if (hit2D1)
             {
-                if (hit2D.collider.tag == bounceTag)
+                Debug.Log(hit2D1.collider.tag);
+                if (hit2D1.collider.tag == tileTag)
                 {
+                    Debug.Log("Doge");
                     laserReflected++;
                     mLineRenderer.positionCount++;
-                    mLineRenderer.SetPosition(vertexCounter++, hit2D.point);
-                    pathVector = Vector3.Reflect(pathVector, hit2D.normal);
+                    mLineRenderer.SetPosition(vertexCounter++, hit2D1.point);
+                    pathVector = Vector3.Reflect(pathVector, hit2D1.normal);
                 }
                 else
                 {
                     mLineRenderer.positionCount++;
-                    mLineRenderer.SetPosition(vertexCounter, hit2D.point);
+                    mLineRenderer.SetPosition(vertexCounter, hit2D1.point);
                     loopActive = false;
                     yield return new WaitForSecondsRealtime(0.5f);
                     Destroy(this.gameObject);
@@ -74,9 +77,31 @@ public class BouncingLaser : MonoBehaviour
             }
             else
             {
-                mLineRenderer.positionCount++;
-                pos += pathVector * distInterval;
-                mLineRenderer.SetPosition(vertexCounter++, pos);
+                RaycastHit2D hit2D2 = Physics2D.Raycast(pos, pathVector, distInterval, projectileLayer);
+                if (hit2D2)
+                {
+                    if (hit2D2.collider.tag == mirrorTag)
+                    {
+                        laserReflected++;
+                        mLineRenderer.positionCount++;
+                        mLineRenderer.SetPosition(vertexCounter++, hit2D2.point);
+                        pathVector = Vector3.Reflect(pathVector, hit2D2.normal);
+                    }
+                    else
+                    {
+                        mLineRenderer.positionCount++;
+                        mLineRenderer.SetPosition(vertexCounter, hit2D2.point);
+                        loopActive = false;
+                        yield return new WaitForSecondsRealtime(0.5f);
+                        Destroy(this.gameObject);
+                    }
+                }
+                else
+                {
+                    mLineRenderer.positionCount++;
+                    pos += pathVector * distInterval;
+                    mLineRenderer.SetPosition(vertexCounter++, pos);
+                }
             }
 
             if (time > TIME_MAX || laserReflected > maxBounce)
@@ -89,6 +114,11 @@ public class BouncingLaser : MonoBehaviour
             time += 0.01f;
             yield return new WaitForSecondsRealtime(0.01f);
         }
+    }
+
+    IEnumerator fade()
+    {
+        yield return null;
     }
 
     private void Explode()

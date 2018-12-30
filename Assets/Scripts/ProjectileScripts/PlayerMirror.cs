@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using ProjectileConsts;
 
-public abstract class PlayerMirror : MonoBehaviour {
+public abstract class PlayerMirror : MonoBehaviour
+{
 
     public GameObject explosionPrefab;
 
@@ -25,7 +26,6 @@ public abstract class PlayerMirror : MonoBehaviour {
 
     void Update()
     {
-        transform.Rotate(0, 0, 5f);
     }
 
     public abstract void SetPathVector(Vector2 pathVector);

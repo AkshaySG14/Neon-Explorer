@@ -1,13 +1,12 @@
 ﻿<Properties StartupConfiguration="{D41D66E7-3A44-A7B9-043D-D873DB10DBF7}|">
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/ProjectileScripts/FastPlayerMirror.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PlayerScripts/PlayerController.cs">
     <Files>
-      <File FileName="Assets/Scripts/ProjectileScripts/BouncingLaser.cs" Line="57" Column="1" />
-      <File FileName="Assets/Scripts/ProjectileScripts/SlowPlayerMirror.cs" Line="33" Column="1" />
-      <File FileName="Assets/Scripts/ProjectileScripts/PlayerBullet.cs" Line="9" Column="19" />
-      <File FileName="Assets/Scripts/PlayerScripts/PlayerController.cs" Line="359" Column="26" />
-      <File FileName="Assets/Scripts/PlayerScripts/PlayerConstants.cs" Line="37" Column="35" />
-      <File FileName="Assets/Scripts/ProjectileScripts/FastPlayerMirror.cs" Line="18" Column="17" />
+      <File FileName="Assets/Scripts/PlayerScripts/PlayerController.cs" Line="338" Column="34" />
+      <File FileName="Assets/Scripts/ProjectileScripts/PlayerMirror.cs" Line="30" Column="1" />
+      <File FileName="Assets/Scripts/ProjectileScripts/SlowPlayerMirror.cs" Line="10" Column="46" />
+      <File FileName="Assets/Scripts/ProjectileScripts/ProjectileConstants.cs" Line="11" Column="2" />
+      <File FileName="Assets/Scripts/ProjectileScripts/FastPlayerMirror.cs" Line="26" Column="6" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

@@ -11,6 +11,11 @@ public class SlowPlayerMirror : PlayerMirror
         lifeSpan = Constants.SLOW_MIRROR_LIFESPAN;
     }
 
+    void Update()
+    {
+        gameObject.transform.Rotate(0, 0, 1f);
+    }
+
     public override void SetPathVector(Vector2 pathVector)
     {
         this.rb2d = GetComponent<Rigidbody2D>();
