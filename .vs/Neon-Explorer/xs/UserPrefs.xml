@@ -1,12 +1,11 @@
-﻿<Properties StartupConfiguration="{D41D66E7-3A44-A7B9-043D-D873DB10DBF7}|">
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+﻿<Properties>
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/PlayerScripts/PlayerController.cs">
     <Files>
-      <File FileName="Assets/Scripts/PlayerScripts/PlayerController.cs" Line="338" Column="34" />
-      <File FileName="Assets/Scripts/ProjectileScripts/PlayerMirror.cs" Line="30" Column="1" />
-      <File FileName="Assets/Scripts/ProjectileScripts/SlowPlayerMirror.cs" Line="10" Column="46" />
+      <File FileName="Assets/Scripts/PlayerScripts/PlayerController.cs" Line="323" Column="20" />
+      <File FileName="Assets/Scripts/ProjectileScripts/PlayerMirror.cs" Line="30" Column="5" />
+      <File FileName="Assets/Scripts/ProjectileScripts/SlowPlayerMirror.cs" Line="8" Column="23" />
       <File FileName="Assets/Scripts/ProjectileScripts/ProjectileConstants.cs" Line="11" Column="2" />
-      <File FileName="Assets/Scripts/ProjectileScripts/FastPlayerMirror.cs" Line="26" Column="6" />
+      <File FileName="Assets/Scripts/ProjectileScripts/FastPlayerMirror.cs" Line="24" Column="5" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
