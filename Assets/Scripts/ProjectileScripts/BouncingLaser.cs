@@ -10,6 +10,14 @@ public class BouncingLaser : MonoBehaviour
     public string mirrorTag;
     public int maxBounce;
 
+    private bool active = true;
+    private bool canCollide = false;
+    private int reflections;
+    private int vertexCounter = 1;
+
+    public GameObject laser;
+
+    private BouncingLaser parentLaser = null;
     private LineRenderer mLineRenderer;
     private Vector3 pathVector;
 
@@ -23,27 +31,67 @@ public class BouncingLaser : MonoBehaviour
     {
     }
 
+    public void SetParent(BouncingLaser bouncingLaser)
+    {
+        this.parentLaser = bouncingLaser;
+    }
+
+    public void SetReflections(int reflections)
+    {
+        this.mLineRenderer = GetComponent<LineRenderer>();
+        this.reflections = reflections;
+        switch (reflections)
+        {
+            case 0:
+                mLineRenderer.startColor = Color.blue;
+                mLineRenderer.endColor = Color.cyan;
+                break;
+            case 1:
+                mLineRenderer.startColor = Color.cyan;
+                mLineRenderer.endColor = Color.green;
+                break;
+            case 2:
+                mLineRenderer.startColor = Color.green;
+                mLineRenderer.endColor = Color.magenta;
+                break;
+            case 3:
+                mLineRenderer.startColor = Color.magenta;
+                mLineRenderer.endColor = Color.yellow;
+                break;
+            case 4:
+                mLineRenderer.startColor = Color.yellow;
+                mLineRenderer.endColor = Color.red;
+                break;
+            default:
+                break;
+        }
+    }
+
     public void SetPathVector(Vector3 pathVector)
     {
         this.pathVector = pathVector.normalized;
         Vector2 transformVector = new Vector2(pathVector.x, pathVector.y);
         transformVector = transformVector.normalized;
         this.pathVector = new Vector3(transformVector.x, transformVector.y, 0);
-        mLineRenderer = GetComponent<LineRenderer>();
         StartCoroutine("Fire");
     }
 
+    IEnumerator Destruct()
+    {
+        active = false;
+        if (parentLaser)
+        {
+            StartCoroutine(parentLaser.Destruct());
+        }
+        yield return new WaitForSecondsRealtime(0.5f);
+        Destroy(this.gameObject);
+    }
 
     IEnumerator Fire()
     {
+        const float DIST_INTERVAL = 0.2f;
+        const float TIME_MAX = 0.5f;
         float time = 0;
-        const float distInterval = 0.25f;
-
-        float TIME_MAX = 0.25f;
-
-        int laserReflected = 0; //How many times it got reflected
-        int vertexCounter = 1; //How many line segments are there
-        bool loopActive = true; //Is the reflecting loop active?
 
         Vector3 pos = transform.position;
         mLineRenderer.SetPosition(0, pos);
@@ -52,77 +100,78 @@ public class BouncingLaser : MonoBehaviour
         LayerMask blockLayer = LayerMask.GetMask("Blocking");
         LayerMask projectileLayer = LayerMask.GetMask("Projectile");
 
-        while (loopActive)
+        while (active)
         {
-            RaycastHit2D hit2D1 = Physics2D.Raycast(pos, pathVector, distInterval, blockLayer);
-            if (hit2D1)
+            RaycastHit2D tileHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL, blockLayer);
+            if (tileHit2D && canCollide)
             {
-                Debug.Log(hit2D1.collider.tag);
-                if (hit2D1.collider.tag == tileTag)
+                if (tileHit2D.collider.tag == tileTag)
                 {
-                    Debug.Log("Doge");
-                    laserReflected++;
-                    mLineRenderer.positionCount++;
-                    mLineRenderer.SetPosition(vertexCounter++, hit2D1.point);
-                    pathVector = Vector3.Reflect(pathVector, hit2D1.normal);
+                    Reflect(tileHit2D);
                 }
                 else
                 {
-                    mLineRenderer.positionCount++;
-                    mLineRenderer.SetPosition(vertexCounter, hit2D1.point);
-                    loopActive = false;
                     yield return new WaitForSecondsRealtime(0.5f);
-                    Destroy(this.gameObject);
                 }
             }
             else
             {
-                RaycastHit2D hit2D2 = Physics2D.Raycast(pos, pathVector, distInterval, projectileLayer);
-                if (hit2D2)
+                RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL, projectileLayer);
+                if (mirrorHit2D && canCollide)
                 {
-                    if (hit2D2.collider.tag == mirrorTag)
+                    if (mirrorHit2D.collider.tag == mirrorTag)
                     {
-                        laserReflected++;
-                        mLineRenderer.positionCount++;
-                        mLineRenderer.SetPosition(vertexCounter++, hit2D2.point);
-                        pathVector = Vector3.Reflect(pathVector, hit2D2.normal);
+                        Reflect(mirrorHit2D);
                     }
                     else
                     {
-                        mLineRenderer.positionCount++;
-                        mLineRenderer.SetPosition(vertexCounter, hit2D2.point);
-                        loopActive = false;
                         yield return new WaitForSecondsRealtime(0.5f);
-                        Destroy(this.gameObject);
                     }
                 }
                 else
                 {
                     mLineRenderer.positionCount++;
-                    pos += pathVector * distInterval;
+                    pos += pathVector * DIST_INTERVAL;
                     mLineRenderer.SetPosition(vertexCounter++, pos);
                 }
             }
 
-            if (time > TIME_MAX || laserReflected > maxBounce)
+            if (time > TIME_MAX)
             {
-                loopActive = false;
-                yield return new WaitForSecondsRealtime(0.5f);
-                Destroy(this.gameObject);
+                StartCoroutine("Destruct");
             }
 
             time += 0.01f;
+            if (!canCollide)
+            {
+                canCollide = true;
+            }
             yield return new WaitForSecondsRealtime(0.01f);
         }
     }
 
-    IEnumerator fade()
+    private void Reflect(RaycastHit2D hit2D)
     {
-        yield return null;
+        if (reflections + 1 > maxBounce)
+        {
+            StartCoroutine("Destruct");
+        }
+        else
+        {
+            active = false;
+            mLineRenderer.positionCount++;
+            mLineRenderer.SetPosition(vertexCounter++, hit2D.point);
+            GameObject laserProj = Instantiate(laser, hit2D.point, transform.rotation);
+            laserProj.SendMessage("SetParent", this);
+            laserProj.SendMessage("SetReflections", reflections + 1);
+            laserProj.SendMessage("SetPathVector", Vector3.Reflect(pathVector, hit2D.normal));
+        }
     }
 
-    private void Explode()
+    private void End(RaycastHit2D raycastHit2D)
     {
-        Destroy(this.gameObject);
+        mLineRenderer.positionCount++;
+        mLineRenderer.SetPosition(vertexCounter, raycastHit2D.point);
+        Destruct();
     }
 }

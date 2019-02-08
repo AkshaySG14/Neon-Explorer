@@ -387,6 +387,7 @@ public class PlayerController : MonoBehaviour
             Flip();
         }
         GameObject laserProj = Instantiate(laser, projectile.position, projectile.rotation);
+        laserProj.SendMessage("SetReflections", 1);
         laserProj.SendMessage("SetPathVector", mousePos - projectile.position);
     }
 
