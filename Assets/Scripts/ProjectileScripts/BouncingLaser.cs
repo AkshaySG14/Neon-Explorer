@@ -9,9 +9,10 @@ public class BouncingLaser : MonoBehaviour
     public string tileTag;
     public string mirrorTag;
     public int maxBounce;
+    public int collisionsPerFrame;
+    public int collisionMisses;
 
     private bool active = true;
-    private bool canCollide = false;
     private int reflections;
     private int vertexCounter = 1;
 
@@ -89,6 +90,7 @@ public class BouncingLaser : MonoBehaviour
 
     IEnumerator Fire()
     {
+        int missedCollisionFrames = 0;
         const float DIST_INTERVAL = 0.2f;
         const float TIME_MAX = 0.5f;
         float time = 0;
@@ -102,26 +104,15 @@ public class BouncingLaser : MonoBehaviour
 
         while (active)
         {
-            RaycastHit2D tileHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL, blockLayer);
-            if (tileHit2D && canCollide)
+            for (int i = 0; i < collisionsPerFrame; i++)
             {
-                if (tileHit2D.collider.tag == tileTag)
+                RaycastHit2D tileHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, blockLayer);
+                if (tileHit2D && missedCollisionFrames > collisionMisses)
                 {
-                    Reflect(tileHit2D);
-                }
-                else
-                {
-                    yield return new WaitForSecondsRealtime(0.5f);
-                }
-            }
-            else
-            {
-                RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL, projectileLayer);
-                if (mirrorHit2D && canCollide)
-                {
-                    if (mirrorHit2D.collider.tag == mirrorTag)
+                    if (tileHit2D.collider.tag == tileTag)
                     {
-                        Reflect(mirrorHit2D);
+                        Reflect(tileHit2D);
+                        break;
                     }
                     else
                     {
@@ -130,21 +121,34 @@ public class BouncingLaser : MonoBehaviour
                 }
                 else
                 {
-                    mLineRenderer.positionCount++;
-                    pos += pathVector * DIST_INTERVAL;
-                    mLineRenderer.SetPosition(vertexCounter++, pos);
+                    RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, projectileLayer);
+                    if (mirrorHit2D && missedCollisionFrames > collisionMisses)
+                    {
+                        if (mirrorHit2D.collider.tag == mirrorTag)
+                        {
+                            Reflect(mirrorHit2D);
+                            break;
+                        }
+                        else
+                        {
+                            yield return new WaitForSecondsRealtime(0.5f);
+                        }
+                    }
+                    else
+                    {
+                        mLineRenderer.positionCount++;
+                        pos += pathVector * DIST_INTERVAL / collisionsPerFrame;
+                        mLineRenderer.SetPosition(vertexCounter++, pos);
+                    }
                 }
-            }
 
-            if (time > TIME_MAX)
-            {
-                StartCoroutine("Destruct");
-            }
+                if (time > TIME_MAX)
+                {
+                    StartCoroutine("Destruct");
+                }
 
-            time += 0.01f;
-            if (!canCollide)
-            {
-                canCollide = true;
+                time += 0.01f;
+                missedCollisionFrames++;
             }
             yield return new WaitForSecondsRealtime(0.01f);
         }
