@@ -11,14 +11,17 @@ public class BouncingLaser : MonoBehaviour
     public int maxBounce;
     public int collisionsPerFrame;
     public int collisionMisses;
+    public int maxNumberOfLasers;
 
-    private bool active = true;
     private int reflections;
+    private int number = 0;
     private int vertexCounter = 1;
+    private int missedCollisionFrames = 0;
 
     public GameObject laser;
 
     private BouncingLaser parentLaser = null;
+    private BouncingLaser childLaser = null;
     private LineRenderer mLineRenderer;
     private Vector3 pathVector;
 
@@ -35,6 +38,7 @@ public class BouncingLaser : MonoBehaviour
     public void SetParent(BouncingLaser bouncingLaser)
     {
         this.parentLaser = bouncingLaser;
+        parentLaser.SendMessage("SetChildLaser", this);
     }
 
     public void SetReflections(int reflections)
@@ -45,27 +49,37 @@ public class BouncingLaser : MonoBehaviour
         {
             case 0:
                 mLineRenderer.startColor = Color.blue;
-                mLineRenderer.endColor = Color.cyan;
+                mLineRenderer.endColor = Color.blue;
                 break;
             case 1:
                 mLineRenderer.startColor = Color.cyan;
-                mLineRenderer.endColor = Color.green;
+                mLineRenderer.endColor = Color.cyan;
                 break;
             case 2:
                 mLineRenderer.startColor = Color.green;
-                mLineRenderer.endColor = Color.magenta;
+                mLineRenderer.endColor = Color.green;
                 break;
             case 3:
                 mLineRenderer.startColor = Color.magenta;
-                mLineRenderer.endColor = Color.yellow;
+                mLineRenderer.endColor = Color.magenta;
                 break;
             case 4:
                 mLineRenderer.startColor = Color.yellow;
-                mLineRenderer.endColor = Color.red;
+                mLineRenderer.endColor = Color.yellow;
                 break;
             default:
                 break;
         }
+    }
+
+    public void SetNumber(int number)
+    {
+        this.number = number;
+    }
+
+    public void SetMissedCollisionFrames(int misses)
+    {
+        this.missedCollisionFrames = misses;
     }
 
     public void SetPathVector(Vector3 pathVector)
@@ -77,23 +91,55 @@ public class BouncingLaser : MonoBehaviour
         StartCoroutine("Fire");
     }
 
+    public void SetChildLaser(BouncingLaser laser)
+    {
+        this.childLaser = laser;
+    }
+
     IEnumerator Destruct()
     {
-        active = false;
         if (parentLaser)
         {
-            StartCoroutine(parentLaser.Destruct());
+            StartCoroutine("ParentDestruct");
         }
-        yield return new WaitForSecondsRealtime(0.5f);
+        else
+        {
+            StartCoroutine("ChildDestruct");
+        }
+        yield return null;
+    }
+
+    IEnumerator ChildDestruct()
+    {
+        yield return null;
+        if (childLaser)
+        {
+            childLaser.SendMessage("ChildDestruct");
+        }
+        float alpha = 0.5f;
+        while (alpha > 0)
+        {
+            alpha -= 0.05f;
+            mLineRenderer.material.SetColor("_TintColor", new Color(1f, 1f, 1f, alpha));
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
         Destroy(this.gameObject);
+    }
+
+    IEnumerator ParentDestruct()
+    {
+        parentLaser.SendMessage("Destruct", this);
+        yield return null;
     }
 
     IEnumerator Fire()
     {
-        int missedCollisionFrames = 0;
+        if (this.number > maxNumberOfLasers)
+        {
+            StartCoroutine("Destruct", null);
+            yield break;
+        }
         const float DIST_INTERVAL = 0.2f;
-        const float TIME_MAX = 0.5f;
-        float time = 0;
 
         Vector3 pos = transform.position;
         mLineRenderer.SetPosition(0, pos);
@@ -102,17 +148,30 @@ public class BouncingLaser : MonoBehaviour
         LayerMask blockLayer = LayerMask.GetMask("Blocking");
         LayerMask projectileLayer = LayerMask.GetMask("Projectile");
 
-        while (active)
+        for (int i = 0; i < collisionsPerFrame; i++)
         {
-            for (int i = 0; i < collisionsPerFrame; i++)
+            RaycastHit2D tileHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, blockLayer);
+            if (tileHit2D && missedCollisionFrames <= collisionMisses)
             {
-                RaycastHit2D tileHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, blockLayer);
-                if (tileHit2D && missedCollisionFrames > collisionMisses)
+                if (tileHit2D.collider.tag == tileTag)
                 {
-                    if (tileHit2D.collider.tag == tileTag)
+                    Reflect(tileHit2D);
+                    yield break;
+                }
+                else
+                {
+                    yield return new WaitForSecondsRealtime(0.5f);
+                }
+            }
+            else
+            {
+                RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, projectileLayer);
+                if (mirrorHit2D && missedCollisionFrames <= collisionMisses)
+                {
+                    if (mirrorHit2D.collider.tag == mirrorTag)
                     {
-                        Reflect(tileHit2D);
-                        break;
+                        Reflect(mirrorHit2D);
+                        yield break;
                     }
                     else
                     {
@@ -121,53 +180,35 @@ public class BouncingLaser : MonoBehaviour
                 }
                 else
                 {
-                    RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, projectileLayer);
-                    if (mirrorHit2D && missedCollisionFrames > collisionMisses)
-                    {
-                        if (mirrorHit2D.collider.tag == mirrorTag)
-                        {
-                            Reflect(mirrorHit2D);
-                            break;
-                        }
-                        else
-                        {
-                            yield return new WaitForSecondsRealtime(0.5f);
-                        }
-                    }
-                    else
-                    {
-                        mLineRenderer.positionCount++;
-                        pos += pathVector * DIST_INTERVAL / collisionsPerFrame;
-                        mLineRenderer.SetPosition(vertexCounter++, pos);
-                    }
+                    mLineRenderer.positionCount++;
+                    pos += pathVector * DIST_INTERVAL / collisionsPerFrame;
+                    mLineRenderer.SetPosition(vertexCounter++, pos);
                 }
-
-                if (time > TIME_MAX)
-                {
-                    StartCoroutine("Destruct");
-                }
-
-                time += 0.01f;
-                missedCollisionFrames++;
             }
+            missedCollisionFrames--;
             yield return new WaitForSecondsRealtime(0.01f);
         }
+        GameObject laserProj = Instantiate(laser, pos, transform.rotation);
+        laserProj.SendMessage("SetParent", this);
+        laserProj.SendMessage("SetReflections", reflections);
+        laserProj.SendMessage("SetNumber", number + 1);
+        laserProj.SendMessage("SetPathVector", pathVector);
     }
 
     private void Reflect(RaycastHit2D hit2D)
     {
         if (reflections + 1 > maxBounce)
         {
-            StartCoroutine("Destruct");
+            StartCoroutine("Destruct", null);
         }
         else
         {
-            active = false;
             mLineRenderer.positionCount++;
             mLineRenderer.SetPosition(vertexCounter++, hit2D.point);
             GameObject laserProj = Instantiate(laser, hit2D.point, transform.rotation);
             laserProj.SendMessage("SetParent", this);
             laserProj.SendMessage("SetReflections", reflections + 1);
+            laserProj.SendMessage("SetMissedCollisionFrames", 1);
             laserProj.SendMessage("SetPathVector", Vector3.Reflect(pathVector, hit2D.normal));
         }
     }
