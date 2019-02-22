@@ -8,15 +8,17 @@ public class BouncingLaser : MonoBehaviour
     public int laserDistance;
     public string tileTag;
     public string mirrorTag;
-    public int maxBounce;
     public int collisionsPerFrame;
     public int collisionMisses;
     public int maxNumberOfLasers;
+    public int maxReflections;
 
     private int reflections;
     private int number = 0;
     private int vertexCounter = 1;
     private int missedCollisionFrames = 0;
+
+    private float time = 3f;
 
     public GameObject laser;
 
@@ -96,6 +98,11 @@ public class BouncingLaser : MonoBehaviour
         this.childLaser = laser;
     }
 
+    public void SetTime(float time)
+    {
+        this.time = time;
+    }
+
     IEnumerator Destruct()
     {
         if (parentLaser)
@@ -134,12 +141,7 @@ public class BouncingLaser : MonoBehaviour
 
     IEnumerator Fire()
     {
-        if (this.number > maxNumberOfLasers)
-        {
-            StartCoroutine("Destruct", null);
-            yield break;
-        }
-        const float DIST_INTERVAL = 0.2f;
+        const float DIST_INTERVAL = 0.25f;
 
         Vector3 pos = transform.position;
         mLineRenderer.SetPosition(0, pos);
@@ -186,31 +188,32 @@ public class BouncingLaser : MonoBehaviour
                 }
             }
             missedCollisionFrames--;
-            yield return new WaitForSecondsRealtime(0.01f);
+            time -= Time.deltaTime;
+            if (time <= 0)
+            {
+                StartCoroutine("Destruct", null);
+                yield break;
+            }
         }
+        yield return new WaitForSecondsRealtime(0.01f);
         GameObject laserProj = Instantiate(laser, pos, transform.rotation);
         laserProj.SendMessage("SetParent", this);
         laserProj.SendMessage("SetReflections", reflections);
         laserProj.SendMessage("SetNumber", number + 1);
+        laserProj.SendMessage("SetTime", time);
         laserProj.SendMessage("SetPathVector", pathVector);
     }
 
     private void Reflect(RaycastHit2D hit2D)
     {
-        if (reflections + 1 > maxBounce)
-        {
-            StartCoroutine("Destruct", null);
-        }
-        else
-        {
-            mLineRenderer.positionCount++;
-            mLineRenderer.SetPosition(vertexCounter++, hit2D.point);
-            GameObject laserProj = Instantiate(laser, hit2D.point, transform.rotation);
-            laserProj.SendMessage("SetParent", this);
-            laserProj.SendMessage("SetReflections", reflections + 1);
-            laserProj.SendMessage("SetMissedCollisionFrames", 1);
-            laserProj.SendMessage("SetPathVector", Vector3.Reflect(pathVector, hit2D.normal));
-        }
+        mLineRenderer.positionCount++;
+        mLineRenderer.SetPosition(vertexCounter++, hit2D.point);
+        GameObject laserProj = Instantiate(laser, hit2D.point, transform.rotation);
+        laserProj.SendMessage("SetParent", this);
+        laserProj.SendMessage("SetReflections", reflections + 1);
+        laserProj.SendMessage("SetMissedCollisionFrames", 1);
+        laserProj.SendMessage("SetTime", time);
+        laserProj.SendMessage("SetPathVector", Vector3.Reflect(pathVector, hit2D.normal));
     }
 
     private void End(RaycastHit2D raycastHit2D)
