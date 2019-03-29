@@ -6,6 +6,10 @@ using ProjectileConsts;
 public class FastPlayerMirror : PlayerMirror
 {
     private Vector2 endVector;
+    private FastPlayerMirror primaryMirror = null;
+    private FastPlayerMirror secondaryMirror = null;
+    private LineRenderer mirrorLineRenderer;
+    private EdgeCollider2D mirrorCollider;
 
     FastPlayerMirror()
     {
@@ -17,6 +21,7 @@ public class FastPlayerMirror : PlayerMirror
     {
         this.endVector = endVector;
         this.rb2d = GetComponent<Rigidbody2D>();
+        this.mirrorCollider = GetComponent<EdgeCollider2D>();
         StartCoroutine(Launcher());
         StartCoroutine("SlowDown");
         StartCoroutine("SelfDestruct");
@@ -25,6 +30,44 @@ public class FastPlayerMirror : PlayerMirror
     void OnCollisionEnter2D(Collision2D collisionObject)
     {
         Explode();
+    }
+
+    protected override void Explode()
+    {
+        if (primaryMirror != null)
+        {
+            primaryMirror.Explode();
+        }
+        Instantiate(explosionPrefab, gameObject.transform.position,
+            gameObject.transform.rotation);
+        Destroy(this.gameObject);
+    }
+
+    void SetPrimaryMirror(FastPlayerMirror primaryMirror)
+    {
+        if (primaryMirror == null)
+        {
+            return;
+        }
+        else
+        {
+            this.mirrorLineRenderer = GetComponent<LineRenderer>();
+            this.primaryMirror = primaryMirror;
+        }
+    }
+
+    void SetSecondaryMirror(FastPlayerMirror secondaryMirror)
+    {
+        if (secondaryMirror == null)
+        {
+            return;
+        }
+        else
+        {
+            this.mirrorLineRenderer = GetComponent<LineRenderer>();
+            this.secondaryMirror = secondaryMirror;
+            secondaryMirror.SetPrimaryMirror(this);
+        }
     }
 
     private IEnumerator SlowDown()
@@ -37,6 +80,12 @@ public class FastPlayerMirror : PlayerMirror
         }
         yield return null;
         rb2d.velocity = Vector2.zero;
+        if (secondaryMirror != null)
+        {
+            mirrorLineRenderer.SetPosition(0, this.transform.position);
+            mirrorLineRenderer.SetPosition(1, secondaryMirror.transform.position);
+            mirrorCollider.points = new Vector2[] { new Vector2(0, 0), secondaryMirror.transform.position - transform.position };
+        }
     }
 
     private IEnumerator Launcher()

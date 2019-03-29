@@ -30,11 +30,12 @@ public class PlayerController : MonoBehaviour
     private int currFrameState = 0;
 
     private Vector2 frameAddForce = new Vector2(0, 0);
-    private Vector3 storedMousePos;
 
     private Animator animator;
     private Rigidbody2D rb2d;
     private LineRenderer mLineRenderer;
+
+    private GameObject firedMirror = null;
 
     private void Start()
     {
@@ -163,16 +164,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown(Constants.SHOOT_FAST_MIRROR))
         {
-            if (aiming)
-            {
-                FireFastMirror();
-                aiming = false;
-            }
-            else
-            {
-                storedMousePos = camera.ScreenToWorldPoint(Input.mousePosition);
-                aiming = true;
-            }
+            FireFastMirror();
         }
         else if (Input.GetButtonDown(Constants.SHOOT_SLOW_MIRROR))
         {
@@ -318,11 +310,11 @@ public class PlayerController : MonoBehaviour
         Vector3 mousePos = Input.mousePosition;
         mousePos = camera.ScreenToWorldPoint(mousePos);
 
-        if (storedMousePos.x < transform.position.x && facingRight)
+        if (mousePos.x < transform.position.x && facingRight)
         {
             Flip();
         }
-        else if (storedMousePos.x > transform.position.x && !facingRight)
+        else if (mousePos.x > transform.position.x && !facingRight)
         {
             Flip();
         }
@@ -335,8 +327,13 @@ public class PlayerController : MonoBehaviour
         }
 
         GameObject mirrorProj;
-        mirrorProj = Instantiate(fastMirror, projectile.position, Quaternion.FromToRotation(Vector3.right, mousePos - storedMousePos));
-        mirrorProj.SendMessage("SetPathVector", new Vector2(storedMousePos.x, storedMousePos.y));
+        mirrorProj = Instantiate(fastMirror, projectile.position, projectile.rotation);
+        mirrorProj.SendMessage("SetPathVector", new Vector2(mousePos.x, mousePos.y));
+        if (firedMirror != null)
+        {
+            mirrorProj.SendMessage("SetSecondaryMirror", firedMirror.GetComponent(typeof(FastPlayerMirror)) as FastPlayerMirror);
+        }
+        firedMirror = firedMirror == null ? mirrorProj : null;
     }
 
     private void FireSlowMirror()

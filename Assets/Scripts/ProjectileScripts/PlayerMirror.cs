@@ -30,7 +30,7 @@ public abstract class PlayerMirror : MonoBehaviour
 
     public abstract void SetPathVector(Vector2 pathVector);
 
-    protected void Explode()
+    protected virtual void Explode()
     {
         Instantiate(explosionPrefab, gameObject.transform.position,
                     gameObject.transform.rotation);
@@ -40,6 +40,6 @@ public abstract class PlayerMirror : MonoBehaviour
     protected IEnumerator SelfDestruct()
     {
         yield return new WaitForSeconds(lifeSpan);
-        Explode();
+        //Explode();
     }
 }

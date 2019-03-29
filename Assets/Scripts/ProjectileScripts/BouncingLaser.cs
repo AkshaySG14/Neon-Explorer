@@ -18,7 +18,8 @@ public class BouncingLaser : MonoBehaviour
     private int vertexCounter = 1;
     private int missedCollisionFrames = 0;
 
-    private float time = 3f;
+    private float time = 0.75f;
+    private bool justCollided = false;
 
     public GameObject laser;
 
@@ -103,6 +104,11 @@ public class BouncingLaser : MonoBehaviour
         this.time = time;
     }
 
+    public void SetCollided(bool justCollided)
+    {
+        this.justCollided = justCollided;
+    }
+
     IEnumerator Destruct()
     {
         if (parentLaser)
@@ -148,7 +154,7 @@ public class BouncingLaser : MonoBehaviour
         mLineRenderer.positionCount = 1;
 
         LayerMask blockLayer = LayerMask.GetMask("Blocking");
-        LayerMask projectileLayer = LayerMask.GetMask("Projectile");
+        LayerMask mirrorLayer = LayerMask.GetMask("Mirror");
 
         for (int i = 0; i < collisionsPerFrame; i++)
         {
@@ -167,7 +173,7 @@ public class BouncingLaser : MonoBehaviour
             }
             else
             {
-                RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, projectileLayer);
+                RaycastHit2D mirrorHit2D = Physics2D.Raycast(pos, pathVector, DIST_INTERVAL / collisionsPerFrame, mirrorLayer);
                 if (mirrorHit2D && missedCollisionFrames <= collisionMisses)
                 {
                     if (mirrorHit2D.collider.tag == mirrorTag)
@@ -187,13 +193,14 @@ public class BouncingLaser : MonoBehaviour
                     mLineRenderer.SetPosition(vertexCounter++, pos);
                 }
             }
+            justCollided = false;
             missedCollisionFrames--;
-            time -= Time.deltaTime;
-            if (time <= 0)
-            {
-                StartCoroutine("Destruct", null);
-                yield break;
-            }
+        }
+        time -= Time.deltaTime;
+        if (time <= 0)
+        {
+            StartCoroutine("Destruct", null);
+            yield break;
         }
         yield return new WaitForSecondsRealtime(0.01f);
         GameObject laserProj = Instantiate(laser, pos, transform.rotation);
@@ -201,11 +208,18 @@ public class BouncingLaser : MonoBehaviour
         laserProj.SendMessage("SetReflections", reflections);
         laserProj.SendMessage("SetNumber", number + 1);
         laserProj.SendMessage("SetTime", time);
+        laserProj.SendMessage("SetCollided", false);
         laserProj.SendMessage("SetPathVector", pathVector);
     }
 
     private void Reflect(RaycastHit2D hit2D)
     {
+        if (justCollided)
+        {
+            StartCoroutine("Destruct", null);
+            return;
+        }
+        justCollided = true;
         mLineRenderer.positionCount++;
         mLineRenderer.SetPosition(vertexCounter++, hit2D.point);
         GameObject laserProj = Instantiate(laser, hit2D.point, transform.rotation);
@@ -213,6 +227,7 @@ public class BouncingLaser : MonoBehaviour
         laserProj.SendMessage("SetReflections", reflections + 1);
         laserProj.SendMessage("SetMissedCollisionFrames", 1);
         laserProj.SendMessage("SetTime", time);
+        laserProj.SendMessage("SetCollided", true);
         laserProj.SendMessage("SetPathVector", Vector3.Reflect(pathVector, hit2D.normal));
     }
 
